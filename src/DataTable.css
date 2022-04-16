@@ -1,0 +1,16 @@
+table, th, td {
+    border: 1px solid black;
+    border-collapse: collapse;
+    
+}
+
+
+th {
+    font-size: 24px;
+    font-weight: bold;
+}
+
+tr {
+    font-size:18px;
+}
+
