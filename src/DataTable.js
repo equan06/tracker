@@ -1,7 +1,8 @@
 import './DataTable.css';
 
 // DataTable is composed of a search, date range selectors, header row, rows for each activity
-export default function DataTable({columns, rows, onEditRow, onDeleteRow}) {
+export default function DataTable({ columns, rows, onDeleteRow, changeSelection }) {
+    console.log('DataTable')
     if (rows == null) rows = [];
     return (
         <table>
@@ -10,7 +11,12 @@ export default function DataTable({columns, rows, onEditRow, onDeleteRow}) {
                 {
                     rows.map(row => {
                         console.log(row);
-                        return <ActivityRow key={row.id} row={row} columns={columns}></ActivityRow>
+                        return <ActivityRow 
+                            key={row.id} 
+                            row={row} 
+                            columns={columns} 
+                            changeSelection={changeSelection}
+                            onDeleteRow={onDeleteRow}></ActivityRow>
                     })
                 }
             </tbody>
@@ -32,7 +38,7 @@ function HeaderRow({ columns }) {
     );
 }
 
-function ActivityRow({ row, columns }) {
+function ActivityRow({ row, columns, changeSelection, onDeleteRow }) {
     return (
         <tr>
             {
@@ -47,11 +53,14 @@ function ActivityRow({ row, columns }) {
                 })
             }
             <td>
-                <button onClick={() => {alert('edit')}}>Edit</button>        
-                <button onClick={() => {alert('delete')}}>X</button>
+                <button onClick={() => { changeSelection(row.id) }}>Edit</button>        
+                <button onClick={() => { onDeleteRow(row.id) }}>X</button>
             </td>
         </tr>
     );
+}
+
+function convertSetsToString() {
 }
 
 

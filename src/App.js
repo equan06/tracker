@@ -1,7 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 import DataTable from './DataTable.js';
-import AddSection from './AddSection.js';
+import EditSection from './EditSection.js';
 
 import { useState, useReducer } from 'react';
 
@@ -31,7 +31,7 @@ function dataReducer(data, action) {
             return data.filter(row => row.id !== action.id);
         }
         case 'edited': {
-            return [data.map(row => row.id === action.rowData.id ? action.rowData : row)];
+            return data.map(row => row.id === action.rowData.id ? action.rowData : row);
         }
         default: {
             throw Error('Unknown action: ' + action.type)
@@ -39,7 +39,7 @@ function dataReducer(data, action) {
     }
 }
 
-let nextId = 0;
+
 function App() {
     let columns = [
         {name: "Date", field: "date" }, 
@@ -51,6 +51,7 @@ function App() {
     console.log('table render')
     let initialData = MockAPI();
     const [data, dispatch] = useReducer(dataReducer, initialData);
+    const [currId, setCurrId] = useState(null);
 
     if (nextId === 0)
         nextId = 1 + (initialData.length > 0 ? Math.max(...initialData.map(r => r.id)) : 0);
@@ -79,12 +80,19 @@ function App() {
         });
     }
 
+    function changeSelection(newId) {
+        setCurrId(newId);
+    }
+
     return (
         <>
-            <AddSection onAddRow={addRow}></AddSection>
-            <DataTable columns={columns} rows={data} onEditRow={editRow} onDeleteRow={deleteRow}></DataTable>
+            <EditSection onAddRow={addRow} onEditRow={editRow} rows={data} currId={currId} changeSelection={changeSelection}></EditSection>
+            <DataTable columns={columns} rows={data} onDeleteRow={deleteRow} changeSelection={changeSelection}></DataTable>
         </>
     );
 }
+
+
+let nextId = 0;
 
 export default App;

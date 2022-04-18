@@ -1,14 +1,15 @@
-import {useState} from 'react';
-export default function AddSection({onAddRow}) {
-    const [isAdding, setIsAdding] = useState(false);
+import {useEffect, useState} from 'react';
+export default function EditSection({ onAddRow, onEditRow, rows, currId, changeSelection }) {
+    console.log('EditSection')
     const defaultFormData = {
         date: '',
         exercise: ''
     }
     const [formData, setFormData] = useState(defaultFormData);
+    const [isEditing, setIsEditing] = useState(false);
 
-    function toggleAddingMode() {
-        setIsAdding(!isAdding);
+    function toggleEditingMode() {
+        setIsEditing(!isEditing);
     }
 
     function handleInputChange(e) {
@@ -20,27 +21,41 @@ export default function AddSection({onAddRow}) {
     }
 
     function handleSave() {
-        onAddRow(formData); 
-        toggleAddingMode(); 
+        if (formData.id === undefined)
+            onAddRow(formData); 
+        else 
+            onEditRow(formData);
+
+        toggleEditingMode(); 
         setFormData(defaultFormData);
+        changeSelection(null);
     }
 
     function handleCancel(){
-        toggleAddingMode();
+        toggleEditingMode();
         setFormData(defaultFormData);
+        changeSelection(null);
     }
+
+    // When currId updates, update the formData and the editing mode
+    useEffect(() => {
+        console.log('useEffect', currId);
+        let rowData = currId !== null ? rows.find(r => r.id === currId) : defaultFormData;
+        setFormData(rowData);
+        setIsEditing(currId !== null);
+    }, [currId]);
 
     return (
         <>
-            {   isAdding ?
+            {   isEditing ?
                 <>
                     <button onClick={handleCancel}>Cancel</button>
                     <button onClick={handleSave}>Save Exercise</button>
                 </> :
-                <button onClick={toggleAddingMode}>Add Exercise</button> 
+                <button onClick={toggleEditingMode}>Add Exercise</button> 
             }
             {
-                isAdding && 
+                isEditing && 
                 <form>
                     <label>Date: </label>
                     <input type='text' name='date' value={formData.date} onChange={handleInputChange}></input>
