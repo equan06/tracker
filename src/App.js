@@ -3,33 +3,29 @@ import './App.css';
 import DataTable from './DataTable.js';
 import EditSection from './EditSection.js';
 
-import { useState, useReducer } from 'react';
+import { useState, useReducer, useEffect } from 'react';
 
 
-function MockAPI() {
-    let data =  [
-        {
-            id: 1, exercise: 'squat', sets: [{reps:1, weight:5}, {sets:2, reps:10}, {sets:2, reps:10}], date: "4/2/2022", notes: "felt ok"
-        },
-        {
-            id: 2, exercise: 'squat', sets: [{reps: 5, weight:10}], date: "4/5/2022"
-        },
-        {
-            id: 3, exercise: 'deadlift', sets: [{reps: 5, weight:10}], date: "4/7/2022", notes: "x"
-        }
-    ];
-    return data;
-}
+// TODO https://stackoverflow.com/questions/60618844/react-hooks-useeffect-is-called-twice-even-if-an-empty-array-is-used-as-an-ar
+
+const base_api = 'http://localhost:5000/';
 
 function dataReducer(data, action) {
     console.log(data, action)
     switch (action.type) {
+        // Load entire datasource
+        case 'loaded': {
+            return action.payload;
+        }
+        // Append a row
         case 'added': {
             return [...data, action.rowData];
         }
+        // Delete a row
         case 'deleted': {
             return data.filter(row => row.id !== action.id);
         }
+        // Update a row's data
         case 'edited': {
             return data.map(row => row.id === action.rowData.id ? action.rowData : row);
         }
@@ -42,14 +38,15 @@ function dataReducer(data, action) {
 
 function App() {
     let columns = [
+        {name: 'Name', field: 'name'},
         {name: "Date", field: "date" }, 
-        {name: 'Exercise', field: "exercise"},
-        {name: "Sets", field: "sets" }, 
+        {name: 'Miles', field: "miles"},
+        {name: "Time", field: "time" }, 
         {name: "Notes", field: "notes"}
     ];
 
     console.log('table render')
-    let initialData = MockAPI();
+    let initialData = [];
     const [data, dispatch] = useReducer(dataReducer, initialData);
     const [currId, setCurrId] = useState(null);
 
@@ -83,6 +80,19 @@ function App() {
     function changeSelection(newId) {
         setCurrId(newId);
     }
+
+    useEffect(() =>{
+        fetch(base_api + 'activities')
+        .then(response =>{ return response.json()})
+        .then(data => {
+            console.log('fetch');
+            dispatch({
+                type: 'loaded',
+                payload: data
+            })
+        })
+        .catch((error) => console.log(error))
+    }, []) // empty array = no state/props dependencies, so only runs once on mount
 
     return (
         <>

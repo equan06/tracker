@@ -43,13 +43,7 @@ function ActivityRow({ row, columns, changeSelection, onDeleteRow }) {
         <tr>
             {
                 columns.map(c => { 
-                    if (c.field === 'sets') {
-                        // TODO: unnest this array etc.
-                        return <td key={c.field}>{row[c.field] ? row[c.field].toString() : ''}</td>
-                    }
-                    else {
                         return <td key={c.field}>{row[c.field]}</td>
-                    }
                 })
             }
             <td>

@@ -34,5 +34,15 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "description": "WIP",
+  "main": "index.js",
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/equan06/tracker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT"
 }
