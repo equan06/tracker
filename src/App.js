@@ -1,7 +1,6 @@
-import logo from './logo.svg';
 import './App.css';
-import DataTable from './DataTable.js';
-import EditSection from './EditSection.js';
+import DataTable from './components/DataTable.js';
+import EditSection from './components/EditSection.js';
 
 import { useState, useReducer, useEffect } from 'react';
 

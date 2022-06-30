@@ -53,9 +53,3 @@ function ActivityRow({ row, columns, changeSelection, onDeleteRow }) {
         </tr>
     );
 }
-
-function convertSetsToString() {
-}
-
-
-
