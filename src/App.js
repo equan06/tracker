@@ -4,7 +4,7 @@ import EditSection from './components/EditSection.js';
 
 import { useState, useReducer, useEffect } from 'react';
 
-
+// TODO - on server code error, it currently crashes. change to return an error code w/ msg
 // TODO https://stackoverflow.com/questions/60618844/react-hooks-useeffect-is-called-twice-even-if-an-empty-array-is-used-as-an-ar
 
 const base_api = 'http://localhost:5000/';
@@ -49,19 +49,30 @@ function App() {
     const [data, dispatch] = useReducer(dataReducer, initialData);
     const [currId, setCurrId] = useState(null);
 
-    if (nextId === 0)
-        nextId = 1 + (initialData.length > 0 ? Math.max(...initialData.map(r => r.id)) : 0);
-
     // reducer: add row, delete row, edit row
     function addRow(rowData) {
-        rowData.id = nextId++;
-        console.log(rowData)
-        dispatch({
-            type: 'added',
-            rowData: rowData
-        });
+        fetch(base_api + 'activities', {
+            method: 'POST',
+            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json'},
+            body: JSON.stringify(rowData)
+        })
+        .then(response =>{ 
+            return response.json()
+        })
+        .then(data =>{
+            console.log('POST', data)
+            // TODO? run GET to obtain the resource instead of modifying in memory object?
+            // eg if server updates the date/time.
+            rowData['id'] = data;
+            dispatch({
+                type: 'added',
+                rowData: rowData
+            });
+        })
+        .catch(error => console.log(error));
     }
 
+    // TODO delete api
     function deleteRow(id) {
         dispatch({
             type: 'deleted',
@@ -69,6 +80,7 @@ function App() {
         });
     }   
     
+    // TODO put api 
     function editRow(rowData) {
         dispatch({
             type: 'edited',
@@ -90,7 +102,7 @@ function App() {
                 payload: data
             })
         })
-        .catch((error) => console.log(error))
+        .catch(error => console.log(error))
     }, []) // empty array = no state/props dependencies, so only runs once on mount
 
     return (
@@ -100,8 +112,5 @@ function App() {
         </>
     );
 }
-
-
-let nextId = 0;
 
 export default App;

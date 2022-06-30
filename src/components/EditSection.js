@@ -57,11 +57,15 @@ export default function EditSection({ onAddRow, onEditRow, rows, currId, changeS
             {
                 isEditing && 
                 <form>
+                    <label>Name:</label>
+                    <input type='text' name='name' value={formData.name} onChange={handleInputChange}></input>
+                    <br/>
                     <label>Date: </label>
                     <input type='text' name='date' value={formData.date} onChange={handleInputChange}></input>
                     <br/>
-                    <label>Exercise: </label>
-                    <input type='text' name='exercise' value={formData.exercise} onChange={handleInputChange}></input>
+                    <label>Miles: </label>
+                    <input type='text' name='miles' value={formData.miles} onChange={handleInputChange}></input>
+                    <br/>
                 </form> 
             }
         </>
