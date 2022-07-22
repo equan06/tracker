@@ -1,12 +1,16 @@
-const Pool = require('pg').Pool;
+const pg = require('pg');
+const Pool = pg.Pool;
 const pool = new Pool({
     user: 'sa',
     host: 'localhost',
     database: 'run',
     password: 'password123',
     port: 5432 // default postgres port
+});
+const types = pg.types;
+types.setTypeParser(1114, (stringValue)=>{
+    return stringValue.substring(0, 10);
 })
-
 
 /**
  * -GET return all activities
@@ -14,13 +18,17 @@ const pool = new Pool({
  * @param {*} response 
  */
 function getActivities(request, response) {
+    console.log('getActivities');
     pool.query('SELECT * FROM activities ORDER BY id asc', (error, results) => {
         if (error) {
-            throw error;
+            console.log(error);
+            return response.sendStatus(400);
         }
-        console.log(results);
-        response.status(200).json(results.rows);
-    })
+        else {
+            console.log(results);
+            response.status(200).json(results.rows);
+        }
+    });
 }
 
 /**
@@ -32,11 +40,12 @@ function getActivityById(request, response) {
     const id = parseInt(request.params.id);
     pool.query('SELECT * FROM activities WHERE id = $1', [id], (error, results) => {
         if (error) {
-            throw error;
+            console.log(error);
+            return response.sendStatus(400);
         }
         console.log(results);
         response.status(200).json(results.rows);
-    })
+    });
 }
 
 /**
@@ -50,12 +59,13 @@ function createActivity(request, response) {
         [name, date, miles, time, notes],
         (error, results) => {
             if (error) {
-                throw error;
+                console.log(error);
+                return response.sendStatus(400);
             }
             console.log(results);
             response.status(201).json(results.rows[0].id);
         }
-    )
+    );
 }
 
 

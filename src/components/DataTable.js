@@ -43,7 +43,7 @@ function ActivityRow({ row, columns, changeSelection, onDeleteRow }) {
         <tr>
             {
                 columns.map(c => { 
-                        return <td key={c.field}>{row[c.field]}</td>
+                        return <Cell key={c.field} dataType={c.dataType}>{row[c.field]}</Cell>
                 })
             }
             <td>
@@ -52,4 +52,17 @@ function ActivityRow({ row, columns, changeSelection, onDeleteRow }) {
             </td>
         </tr>
     );
+}
+
+function Cell({dataType, children}) {
+    let value = children;
+    if (dataType === 'date') {
+        value = children.split("T")[0]
+    }
+
+    return (
+        <td className="table-cell">
+            {value}
+        </td>
+    )
 }

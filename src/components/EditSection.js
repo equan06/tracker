@@ -2,8 +2,11 @@ import {useEffect, useState} from 'react';
 export default function EditSection({ onAddRow, onEditRow, rows, currId, changeSelection }) {
     console.log('EditSection')
     const defaultFormData = {
-        date: '',
-        exercise: ''
+        name: '',
+        date: new Date().toLocaleDateString('en-ca'),
+        miles: 0,
+        time: 0,
+        notes: '',
     }
     const [formData, setFormData] = useState(defaultFormData);
     const [isEditing, setIsEditing] = useState(false);
@@ -57,17 +60,29 @@ export default function EditSection({ onAddRow, onEditRow, rows, currId, changeS
             {
                 isEditing && 
                 <form>
-                    <label>Name:</label>
-                    <input type='text' name='name' value={formData.name} onChange={handleInputChange}></input>
+                    <InputLabel label='Name' id='name' name='name' value={formData.name} onChange={handleInputChange}></InputLabel>
                     <br/>
-                    <label>Date: </label>
-                    <input type='text' name='date' value={formData.date} onChange={handleInputChange}></input>
+                    <InputLabel label='Date' id='date' name='date' type='date' value={formData.date} onChange={handleInputChange}></InputLabel>
                     <br/>
-                    <label>Miles: </label>
-                    <input type='text' name='miles' value={formData.miles} onChange={handleInputChange}></input>
+                    <InputLabel label='Miles' id='miles' name='miles' type='number' value={formData.miles} onChange={handleInputChange} ></InputLabel>
                     <br/>
+                    <InputLabel label='Notes' id='notes' name='notes' type='textarea' value={formData.notes} onChange={handleInputChange}></InputLabel>
                 </form> 
             }
         </>
     ) 
+}
+
+function InputLabel({label, id, name, type, value, onChange}) {
+    return (
+        <>
+            <label htmlFor={id}>{label}: </label>
+            {
+                type !== 'textarea' ?
+                <input id={id} name={name} type={type} value={value} onChange={onChange}></input> :
+                <textarea id={id} name={name} value={value} onChange={onChange}></textarea>
+
+            }            
+        </>
+    )
 }

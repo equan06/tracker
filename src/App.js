@@ -9,24 +9,42 @@ import { useState, useReducer, useEffect } from 'react';
 
 const base_api = 'http://localhost:5000/';
 
-function dataReducer(data, action) {
-    console.log(data, action)
+const ERROR_LOADING = 1;
+const LOADING = 2;
+const LOADED = 3;
+function dataReducer(state, action) {
+    console.log(state, action);
     switch (action.type) {
+        case ERROR_LOADING: {
+            return { ...state, isError: true, isLoading: false};
+        }
+        case LOADING: {
+            return { ...state, isError: false, isLoading: true };
+        }
         // Load entire datasource
-        case 'loaded': {
-            return action.payload;
+        case LOADED: {
+            return { ...state, data: action.payload, isError: false, isLoading: false };
         }
         // Append a row
         case 'added': {
-            return [...data, action.rowData];
+            return {
+                ...state,
+                data: [...state.data, action.rowData]
+            };
         }
         // Delete a row
         case 'deleted': {
-            return data.filter(row => row.id !== action.id);
+            return {
+                ...state, 
+                data: state.data.filter(row => row.id !== action.id)
+            };
         }
         // Update a row's data
         case 'edited': {
-            return data.map(row => row.id === action.rowData.id ? action.rowData : row);
+            return {
+                ...state,
+                data: state.data.map(row => row.id === action.rowData.id ? action.rowData : row)
+            };
         }
         default: {
             throw Error('Unknown action: ' + action.type)
@@ -37,16 +55,20 @@ function dataReducer(data, action) {
 
 function App() {
     let columns = [
-        {name: 'Name', field: 'name'},
-        {name: "Date", field: "date" }, 
-        {name: 'Miles', field: "miles"},
-        {name: "Time", field: "time" }, 
-        {name: "Notes", field: "notes"}
+        {name: 'Name', field: 'name',},
+        {name: 'Date', field: 'date', dataType: 'date' }, 
+        {name: 'Miles', field: 'miles'},
+        {name: 'Time', field: 'time' }, 
+        {name: 'Notes', field: 'notes'}
     ];
 
     console.log('table render')
-    let initialData = [];
-    const [data, dispatch] = useReducer(dataReducer, initialData);
+    let initialState = {
+        data: [],
+        isLoading: false,
+        isError: false
+    };
+    const [activities, dispatchActivities] = useReducer(dataReducer, initialState);
     const [currId, setCurrId] = useState(null);
 
     // reducer: add row, delete row, edit row
@@ -64,17 +86,20 @@ function App() {
             // TODO? run GET to obtain the resource instead of modifying in memory object?
             // eg if server updates the date/time.
             rowData['id'] = data;
-            dispatch({
+            dispatchActivities({
                 type: 'added',
                 rowData: rowData
             });
         })
-        .catch(error => console.log(error));
+        .catch(error => {
+        
+            console.log(error)
+        });
     }
 
     // TODO delete api
     function deleteRow(id) {
-        dispatch({
+        dispatchActivities({
             type: 'deleted',
             id: id
         });
@@ -82,7 +107,7 @@ function App() {
     
     // TODO put api 
     function editRow(rowData) {
-        dispatch({
+        dispatchActivities({
             type: 'edited',
             rowData: rowData
         });
@@ -93,22 +118,42 @@ function App() {
     }
 
     useEffect(() =>{
+        dispatchActivities({
+            type: LOADING
+        });
         fetch(base_api + 'activities')
         .then(response =>{ return response.json()})
         .then(data => {
             console.log('fetch');
-            dispatch({
-                type: 'loaded',
+            dispatchActivities({
+                type: LOADED,
                 payload: data
             })
         })
-        .catch(error => console.log(error))
+        .catch(error => 
+            {
+                dispatchActivities({
+                    type: ERROR_LOADING
+                });
+                console.log(error);
+            })
     }, []) // empty array = no state/props dependencies, so only runs once on mount
 
+    console.log(activities);
     return (
         <>
-            <EditSection onAddRow={addRow} onEditRow={editRow} rows={data} currId={currId} changeSelection={changeSelection}></EditSection>
-            <DataTable columns={columns} rows={data} onDeleteRow={deleteRow} changeSelection={changeSelection}></DataTable>
+            {
+                activities.isLoading && <div>Loading data...</div>
+            }
+            {
+                !activities.isError ?
+                    <>
+                        <EditSection onAddRow={addRow} onEditRow={editRow} rows={activities.data} currId={currId} changeSelection={changeSelection}></EditSection>
+                        <DataTable columns={columns} rows={activities.data} onDeleteRow={deleteRow} changeSelection={changeSelection}></DataTable>
+                    </>
+                :
+                <div> Error Loading </div>
+            }
         </>
     );
 }
