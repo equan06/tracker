@@ -2,7 +2,7 @@ import './App.css';
 import DataTable from './components/DataTable.js';
 import EditSection from './components/EditSection.js';
 
-import { useState, useReducer, useEffect } from 'react';
+import * as React from 'react';
 
 // TODO - on server code error, it currently crashes. change to return an error code w/ msg
 // TODO https://stackoverflow.com/questions/60618844/react-hooks-useeffect-is-called-twice-even-if-an-empty-array-is-used-as-an-ar
@@ -11,7 +11,8 @@ const base_api = 'http://localhost:5000/';
 
 const ERROR_LOADING = 1;
 const LOADING = 2;
-const LOADED = 3;
+const LOADED = 3;   
+const DELETED = 4;
 function dataReducer(state, action) {
     console.log(state, action);
     switch (action.type) {
@@ -33,7 +34,10 @@ function dataReducer(state, action) {
             };
         }
         // Delete a row
-        case 'deleted': {
+        case DELETED: {
+            console.log(
+                action.id
+            )
             return {
                 ...state, 
                 data: state.data.filter(row => row.id !== action.id)
@@ -68,8 +72,8 @@ function App() {
         isLoading: false,
         isError: false
     };
-    const [activities, dispatchActivities] = useReducer(dataReducer, initialState);
-    const [currId, setCurrId] = useState(null);
+    const [activities, dispatchActivities] = React.useReducer(dataReducer, initialState);
+    const [currId, setCurrId] = React.useState(null);
 
     // reducer: add row, delete row, edit row
     function addRow(rowData) {
@@ -79,7 +83,7 @@ function App() {
             body: JSON.stringify(rowData)
         })
         .then(response =>{ 
-            return response.json()
+            return response.json();
         })
         .then(data =>{
             console.log('POST', data)
@@ -92,16 +96,24 @@ function App() {
             });
         })
         .catch(error => {
-        
-            console.log(error)
+            console.log(error);
         });
     }
 
-    // TODO delete api
     function deleteRow(id) {
-        dispatchActivities({
-            type: 'deleted',
-            id: id
+        fetch(`${base_api}activities/${id}`, {
+            method: 'DELETE',
+        })
+        .then(() => {
+            // On successful deletion from DB, update state
+            console.log('DELETE successful');
+            dispatchActivities({
+                type: DELETED,
+                id: id
+            });
+        })
+        .catch(error=>{
+            console.log(error);
         });
     }   
     
@@ -117,7 +129,7 @@ function App() {
         setCurrId(newId);
     }
 
-    useEffect(() =>{
+    React.useEffect(() =>{
         dispatchActivities({
             type: LOADING
         });
@@ -141,20 +153,20 @@ function App() {
 
     console.log(activities);
     return (
-        <>
+        <div className="table-container">
             {
                 activities.isLoading && <div>Loading data...</div>
             }
             {
                 !activities.isError ?
-                    <>
+                    <div className="table-container">
                         <EditSection onAddRow={addRow} onEditRow={editRow} rows={activities.data} currId={currId} changeSelection={changeSelection}></EditSection>
-                        <DataTable columns={columns} rows={activities.data} onDeleteRow={deleteRow} changeSelection={changeSelection}></DataTable>
-                    </>
+                        <DataTable className="main-table" columns={columns} rows={activities.data} onDeleteRow={deleteRow} changeSelection={changeSelection}></DataTable>
+                    </div>
                 :
                 <div> Error Loading </div>
             }
-        </>
+        </div>
     );
 }
 

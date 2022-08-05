@@ -20,6 +20,7 @@ app.get('/', (request, response) => {
 app.get('/activities', db.getActivities);
 app.get('/activities/:id', db.getActivityById);
 app.post('/activities', db.createActivity);
+app.delete('/activities/:id', db.deleteActivityById);
 
 app.listen(port, () => {
     console.log(`App running on port ${port}.`);

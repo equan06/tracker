@@ -1,26 +1,51 @@
 import './DataTable.css';
+import * as React from 'react';
 
 // DataTable is composed of a search, date range selectors, header row, rows for each activity
-export default function DataTable({ columns, rows, onDeleteRow, changeSelection }) {
+export default function DataTable({ className, columns, rows, onDeleteRow, changeSelection }) {
     console.log('DataTable')
     if (rows == null) rows = [];
+
+    const [confirmDelete, setConfirmDeleteVisible] = React.useState({ isShow: false, id: null });
+    let deleteConfirm = function(id) {
+        console.log('delete confirm?');
+        setConfirmDeleteVisible({ isShow: true, id: id });
+    };
+
+    let onConfirm = function() {
+        onDeleteRow(confirmDelete.id);
+        setConfirmDeleteVisible({ isShow: false, id: null });
+    };
+
+    let onCancel = function() {
+        setConfirmDeleteVisible({ isShow: false, id: null });
+    };
+
     return (
-        <table>
-            <HeaderRow columns={columns}></HeaderRow>
-            <tbody>
-                {
-                    rows.map(row => {
-                        console.log(row);
-                        return <ActivityRow 
-                            key={row.id} 
-                            row={row} 
-                            columns={columns} 
-                            changeSelection={changeSelection}
-                            onDeleteRow={onDeleteRow}></ActivityRow>
-                    })
-                }
-            </tbody>
-        </table>
+        <>
+            {
+                confirmDelete.isShow && <ConfirmDeletePopup onConfirm={onConfirm} onCancel={onCancel}/>
+            }
+            {
+                <table className={className}>
+                    <HeaderRow columns={columns}></HeaderRow>
+                    <tbody>
+                        {
+                            rows.map(row => {
+                                console.log(row);
+                                return <ActivityRow 
+                                    key={row.id} 
+                                    row={row} 
+                                    columns={columns} 
+                                    changeSelection={changeSelection}
+                                    onDeleteRow={deleteConfirm}></ActivityRow>
+                            })
+                        }
+                    </tbody>
+                </table>
+
+            }
+        </>
     );
 }
 
@@ -65,4 +90,16 @@ function Cell({dataType, children}) {
             {value}
         </td>
     )
+}
+
+function ConfirmDeletePopup({onConfirm, onCancel}) {
+    return (
+        <div className='modal'>
+            <div className='modal-content'>
+                <p>Confirm delete?</p>
+                <button onClick={onCancel}>Cancel</button>
+                <button className='popup-confirm-button' onClick={onConfirm}>Yes</button>
+            </div>
+        </div>
+    );
 }

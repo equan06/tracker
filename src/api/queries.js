@@ -25,8 +25,9 @@ function getActivities(request, response) {
             return response.sendStatus(400);
         }
         else {
-            console.log(results);
-            response.status(200).json(results.rows);
+            response
+                .status(200) // Send the status code
+                .json(results.rows); // Send JSON as body
         }
     });
 }
@@ -43,7 +44,6 @@ function getActivityById(request, response) {
             console.log(error);
             return response.sendStatus(400);
         }
-        console.log(results);
         response.status(200).json(results.rows);
     });
 }
@@ -62,16 +62,32 @@ function createActivity(request, response) {
                 console.log(error);
                 return response.sendStatus(400);
             }
-            console.log(results);
             response.status(201).json(results.rows[0].id);
         }
     );
 }
 
+/**
+ * -DELETE an activity 
+ * @param {*} request 
+ * @param {*} response 
+ */
+function deleteActivityById(request, response) {
+    console.log('delete');
+    const id = parseInt(request.params.id);
+    pool.query('DELETE FROM activities WHERE id = $1', [id], (error, results) => {
+        if (error) {
+            console.log(error);
+            return response.sendStatus(400);
+        }
+        response.sendStatus(200); // with no body, use sendStatus instead of just send
+    });
+}
 
 
 module.exports = {
     getActivities,
     getActivityById,
-    createActivity
+    createActivity,
+    deleteActivityById
 }
