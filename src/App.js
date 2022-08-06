@@ -13,6 +13,7 @@ const ERROR_LOADING = 1;
 const LOADING = 2;
 const LOADED = 3;   
 const DELETED = 4;
+const EDITED = 5;
 function dataReducer(state, action) {
     console.log(state, action);
     switch (action.type) {
@@ -44,7 +45,7 @@ function dataReducer(state, action) {
             };
         }
         // Update a row's data
-        case 'edited': {
+        case EDITED: {
             return {
                 ...state,
                 data: state.data.map(row => row.id === action.rowData.id ? action.rowData : row)
@@ -62,7 +63,7 @@ function App() {
         {name: 'Name', field: 'name',},
         {name: 'Date', field: 'date', dataType: 'date' }, 
         {name: 'Miles', field: 'miles'},
-        {name: 'Time', field: 'time' }, 
+        {name: 'Time', field: 'time', dataType: 'seconds'}, 
         {name: 'Notes', field: 'notes'}
     ];
 
@@ -79,7 +80,7 @@ function App() {
     function addRow(rowData) {
         fetch(base_api + 'activities', {
             method: 'POST',
-            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json'},
+            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
             body: JSON.stringify(rowData)
         })
         .then(response =>{ 
@@ -112,16 +113,27 @@ function App() {
                 id: id
             });
         })
-        .catch(error=>{
+        .catch(error=> {
             console.log(error);
         });
     }   
     
-    // TODO put api 
     function editRow(rowData) {
-        dispatchActivities({
-            type: 'edited',
-            rowData: rowData
+        const id = rowData.id;
+        fetch(`${base_api}activities/${id}`, {
+            method: 'PUT',
+            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+            body: JSON.stringify(rowData)
+        })
+        .then(() => {
+            console.log('PUT successful');
+            dispatchActivities({
+                type: EDITED,
+                rowData: rowData
+            });
+        })
+        .catch(error => {
+            console.log(error);
         });
     }
 

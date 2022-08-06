@@ -12,6 +12,8 @@ types.setTypeParser(1114, (stringValue)=>{
     return stringValue.substring(0, 10);
 })
 
+//note: req.params for route parameters, req.query for query params
+
 /**
  * -GET return all activities
  * @param {*} request 
@@ -84,10 +86,32 @@ function deleteActivityById(request, response) {
     });
 }
 
+/**
+ * -UPDATE an activity
+ * @param {*} request 
+ * @param {*} response 
+ */
+function updateActivityById(request, response) {
+    console.log('put');
+    const id = parseInt(request.params.id);
+    const { name, date, miles, time, notes } = request.body;
+    pool.query('UPDATE activities SET name = $2, date = $3, miles = $4, time = $5, notes = $6 WHERE id = $1',
+        [id, name, date, miles, time, notes],
+        (error, results) => {
+            if (error) {
+                console.log(error);
+                return response.sendStatus(400);
+            }
+            response.sendStatus(200);
+        }
+    )
+}
+
 
 module.exports = {
     getActivities,
     getActivityById,
     createActivity,
-    deleteActivityById
+    deleteActivityById,
+    updateActivityById
 }

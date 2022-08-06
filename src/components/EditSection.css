@@ -1,0 +1,53 @@
+
+.form {
+    width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.form-row {
+    width: 800px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-top:10px;
+    padding-bottom:10px;
+}
+
+.time-label {
+    width: 10%;
+}
+
+.time-input {
+    width: 40px;
+}
+
+.time-input[type=number]::-webkit-inner-spin-button, 
+.time-input[type=number]::-webkit-outer-spin-button { 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none; 
+}
+
+.time-container {
+    width: 100%;
+}
+.time-input-container {
+    position: relative;
+    display: inline;
+    margin-right: 20px;
+}
+.label-min:after {
+    right: 5px;
+    top: 0;
+    content: 'min';
+}
+.label-sec:after {
+    right: 5px;
+    top: 0;
+    content: 'sec';
+}
+.label-hr:after {
+    right: 5px;
+    top: 0;
+    content: 'hr';
+}

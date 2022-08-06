@@ -82,7 +82,10 @@ function ActivityRow({ row, columns, changeSelection, onDeleteRow }) {
 function Cell({dataType, children}) {
     let value = children;
     if (dataType === 'date') {
-        value = children.split("T")[0]
+        value = value.split("T")[0]
+    }
+    else if (dataType === 'seconds') {
+        value = secToHHMMSS(value);
     }
 
     return (
@@ -102,4 +105,30 @@ function ConfirmDeletePopup({onConfirm, onCancel}) {
             </div>
         </div>
     );
+}
+
+/**
+ * https://stackoverflow.com/questions/1322732/convert-seconds-to-hh-mm-ss-with-javascript 
+ * from Santiago Hernandez
+ * @param {*} secs 
+ * @returns 
+ */
+function secToHHMMSS(sec) {
+    let sec_num = parseInt(sec, 10);
+    let hours   = Math.floor(sec_num / 3600);
+    let minutes = Math.floor(sec_num / 60) % 60;
+    let seconds = sec_num % 60;
+
+    return [hours, minutes, seconds]
+        .map(v => v < 10 ? "0" + v : v)
+        .filter((v,i) => v !== "00" || i > 0)
+        .join(":");
+}
+
+/**
+ * Convert entered timestamp in HHMMSS to seconds
+ * @param {*} dateStr 
+ */
+function HHMMSStoSec(dateStr) {
+    
 }
