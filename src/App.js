@@ -1,11 +1,16 @@
 import './App.css';
 import DataTable from './components/DataTable.js';
 import EditSection from './components/EditSection.js';
+import NavBar from './components/NavBar.js';
+import { getStartEndOfWk } from './DateUtils.js';
 
 import * as React from 'react';
 
 // TODO - on server code error, it currently crashes. change to return an error code w/ msg
 // TODO https://stackoverflow.com/questions/60618844/react-hooks-useeffect-is-called-twice-even-if-an-empty-array-is-used-as-an-ar
+
+
+let x = getStartEndOfWk("8/9/2022");
 
 const base_api = 'http://localhost:5000/';
 
@@ -76,7 +81,11 @@ function App() {
     const [activities, dispatchActivities] = React.useReducer(dataReducer, initialState);
     const [currId, setCurrId] = React.useState(null);
 
-    // reducer: add row, delete row, edit row
+    const [dateRange, setDateRange] = React.useState({
+    });
+
+
+
     function addRow(rowData) {
         fetch(base_api + 'activities', {
             method: 'POST',
@@ -163,17 +172,20 @@ function App() {
             })
     }, []) // empty array = no state/props dependencies, so only runs once on mount
 
+
+
     console.log(activities);
     return (
-        <div className="table-container">
+        <div className="main">
             {
                 activities.isLoading && <div>Loading data...</div>
             }
+            <NavBar></NavBar>
             {
                 !activities.isError ?
                     <div className="table-container">
                         <EditSection onAddRow={addRow} onEditRow={editRow} rows={activities.data} currId={currId} changeSelection={changeSelection}></EditSection>
-                        <DataTable className="main-table" columns={columns} rows={activities.data} onDeleteRow={deleteRow} changeSelection={changeSelection}></DataTable>
+                        <DataTable columns={columns} rows={activities.data} onDeleteRow={deleteRow} changeSelection={changeSelection}></DataTable>
                     </div>
                 :
                 <div> Error Loading </div>

@@ -1,8 +1,9 @@
 import { render, screen } from '@testing-library/react';
-import App from './App';
+import {getStartEndOfWk} from './DateUtils';
 
-test('renders learn react link', () => {
-  render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
-});
+// todo refactor test suites
+test('date works correctly', () => {
+    let [start, end] = getStartEndOfWk("2022-09-30");
+    expect(start).toBe("2022-09-26");
+    expect(end).toBe("2022-10-02");
+})

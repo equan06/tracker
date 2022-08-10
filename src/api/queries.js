@@ -14,6 +14,7 @@ types.setTypeParser(1114, (stringValue)=>{
 
 //note: req.params for route parameters, req.query for query params
 
+
 /**
  * -GET return all activities
  * @param {*} request 
@@ -21,7 +22,28 @@ types.setTypeParser(1114, (stringValue)=>{
  */
 function getActivities(request, response) {
     console.log('getActivities');
-    pool.query('SELECT * FROM activities ORDER BY id asc', (error, results) => {
+    
+    let startDate = request.query.startDate;
+    let endDate = request.query.endDate;
+
+
+    
+    let SQL = 'SELECT * FROM activities ';
+    if (startDate != null && endDate != null) {
+        order
+    }
+    else if (startDate == null) {
+
+    }
+    else if (endDate == null) {
+
+    }
+
+    SQL += ' ORDER BY id asc';
+
+
+
+    pool.query(SQL, (error, results) => {
         if (error) {
             console.log(error);
             return response.sendStatus(400);

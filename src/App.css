@@ -37,10 +37,15 @@
   }
 }
 
-.table-container {
+.main {
+    width: 1000px;
     text-align:center;
+    margin-left:auto;
+    margin-right:auto;
 }
 
-.main-table {
-    margin: 10px auto;
+.table-container {
+    text-align:center;
+    margin-left:auto;
+    margin-right:auto;
 }

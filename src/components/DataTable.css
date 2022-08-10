@@ -1,7 +1,6 @@
-
-
 table
 {
+    width: 100%;
     min-width: 800px;
     border: 1px solid black;
     border-collapse: collapse;
