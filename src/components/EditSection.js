@@ -1,5 +1,4 @@
-import * as React from 'react';
-import react from 'react';
+import React from 'react';
 import './EditSection.css';
 
 
@@ -14,6 +13,7 @@ export default function EditSection({ onAddRow, onEditRow, rows, currId, changeS
     }
     const [formData, setFormData] = React.useState(defaultFormData);
     const [isEditing, setIsEditing] = React.useState(false);
+    const [isFormError, setIsFormError] = React.useState(false);
 
     function toggleEditingMode() {
         setIsEditing(!isEditing);
@@ -37,20 +37,28 @@ export default function EditSection({ onAddRow, onEditRow, rows, currId, changeS
     }
 
     function handleSave() {
-        if (formData.id === undefined)
-            onAddRow(formData); 
-        else 
-            onEditRow(formData);
+        if (validateForm(formData)) {
+            setIsFormError(false);
+            if (formData.id === undefined)
+                onAddRow(formData); 
+            else 
+                onEditRow(formData);
+    
+            toggleEditingMode(); 
+            setFormData(defaultFormData);
+            changeSelection(null);
 
-        toggleEditingMode(); 
-        setFormData(defaultFormData);
-        changeSelection(null);
+        }
+        else {
+            setIsFormError(true);
+        }
     }
 
     function handleCancel(){
         toggleEditingMode();
         setFormData(defaultFormData);
         changeSelection(null);
+        setIsFormError(false);
     }
 
     // When currId updates, update the formData and the editing mode
@@ -75,14 +83,18 @@ export default function EditSection({ onAddRow, onEditRow, rows, currId, changeS
                 <button onClick={toggleEditingMode}>Add Exercise</button> 
             }
             {
+                isEditing && isFormError &&
+                <div>Please enter all required fields.</div>
+            }
+            {
                 isEditing && 
                 <form className="form">
                     <div className="form-row">
                         <InputLabel width='50%' label='Name' id='name' name='name' value={formData.name} onChange={handleInputChange}></InputLabel>
-                        <InputLabel width='50%' label='Date' id='date' name='date' type='date' value={formData.date} onChange={handleInputChange}></InputLabel>
+                        <InputLabel width='50%' label='Date*' id='date' name='date' type='date' value={formData.date} onChange={handleInputChange}></InputLabel>
                     </div>
                     <div className="form-row">
-                        <InputLabel width='50%' label='Miles' id='miles' name='miles' type='number' value={formData.miles} onChange={handleInputChange} ></InputLabel>
+                        <InputLabel width='50%' label='Miles*' id='miles' name='miles' type='number' value={formData.miles} onChange={handleInputChange} ></InputLabel>
                     </div>
                     <div className="form-row">
                         <TimeLabel value={formData.time} onChange={setFormDataDirect}></TimeLabel>
@@ -94,6 +106,11 @@ export default function EditSection({ onAddRow, onEditRow, rows, currId, changeS
             }
         </>
     ) 
+}
+
+function validateForm(formData) {
+    console.log(formData)
+    return !(formData.date == null || formData.miles === 0);
 }
 
 function InputLabel({width, label, id, name, type, value, onChange}) {

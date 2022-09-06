@@ -21,7 +21,7 @@ function NavButton({onClick, text}) {
 function DateSelector({}) {
     return (
         <div>
-            <label for="main-date">Week including:</label>
+            <label htmlFor="main-date">Week including:</label>
             <input type="date" id="main-date" name="main-date"></input>
         </div>
     );

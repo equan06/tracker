@@ -2,13 +2,12 @@ import './App.css';
 import DataTable from './components/DataTable.js';
 import EditSection from './components/EditSection.js';
 import NavBar from './components/NavBar.js';
+import Metrics from './components/Metrics.js';
 import { getStartEndOfWk } from './DateUtils.js';
 
 import * as React from 'react';
 
 // TODO - on server code error, it currently crashes. change to return an error code w/ msg
-// TODO https://stackoverflow.com/questions/60618844/react-hooks-useeffect-is-called-twice-even-if-an-empty-array-is-used-as-an-ar
-
 
 let x = getStartEndOfWk("8/9/2022");
 
@@ -183,10 +182,13 @@ function App() {
             <NavBar></NavBar>
             {
                 !activities.isError ?
+                <>
                     <div className="table-container">
                         <EditSection onAddRow={addRow} onEditRow={editRow} rows={activities.data} currId={currId} changeSelection={changeSelection}></EditSection>
                         <DataTable columns={columns} rows={activities.data} onDeleteRow={deleteRow} changeSelection={changeSelection}></DataTable>
                     </div>
+                    <Metrics data={activities.data}></Metrics>
+                </>
                 :
                 <div> Error Loading </div>
             }
