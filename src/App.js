@@ -1,199 +1,48 @@
-import './App.css';
-import DataTable from './components/DataTable.js';
-import EditSection from './components/EditSection.js';
-import NavBar from './components/NavBar.js';
-import Metrics from './components/Metrics.js';
-import { getStartEndOfWk } from './DateUtils.js';
-
 import * as React from 'react';
+import {
+    BrowserRouter,
+    Routes,
+    Route,
+    Link,
+} from "react-router-dom";
 
-// TODO - on server code error, it currently crashes. change to return an error code w/ msg
+import Activities from './routes/Activities';
+import NavBar from './components/NavBar';
 
-let x = getStartEndOfWk("8/9/2022");
+const routes = [
+    { name: 'Home', path: '/', component: () => <Home /> },
+    { name: 'Activities', path: '/activities', component: () => <Activities /> }
+];
 
-const base_api = 'http://localhost:5000/';
-
-const ERROR_LOADING = 1;
-const LOADING = 2;
-const LOADED = 3;   
-const DELETED = 4;
-const EDITED = 5;
-function dataReducer(state, action) {
-    console.log(state, action);
-    switch (action.type) {
-        case ERROR_LOADING: {
-            return { ...state, isError: true, isLoading: false};
-        }
-        case LOADING: {
-            return { ...state, isError: false, isLoading: true };
-        }
-        // Load entire datasource
-        case LOADED: {
-            return { ...state, data: action.payload, isError: false, isLoading: false };
-        }
-        // Append a row
-        case 'added': {
-            return {
-                ...state,
-                data: [...state.data, action.rowData]
-            };
-        }
-        // Delete a row
-        case DELETED: {
-            console.log(
-                action.id
-            )
-            return {
-                ...state, 
-                data: state.data.filter(row => row.id !== action.id)
-            };
-        }
-        // Update a row's data
-        case EDITED: {
-            return {
-                ...state,
-                data: state.data.map(row => row.id === action.rowData.id ? action.rowData : row)
-            };
-        }
-        default: {
-            throw Error('Unknown action: ' + action.type)
-        }
-    }
-}
-
-
-function App() {
-    let columns = [
-        {name: 'Name', field: 'name',},
-        {name: 'Date', field: 'date', dataType: 'date' }, 
-        {name: 'Miles', field: 'miles'},
-        {name: 'Time', field: 'time', dataType: 'seconds'}, 
-        {name: 'Notes', field: 'notes'}
-    ];
-
-    console.log('table render')
-    let initialState = {
-        data: [],
-        isLoading: false,
-        isError: false
-    };
-    const [activities, dispatchActivities] = React.useReducer(dataReducer, initialState);
-    const [currId, setCurrId] = React.useState(null);
-
-    const [dateRange, setDateRange] = React.useState({
-    });
-
-
-
-    function addRow(rowData) {
-        fetch(base_api + 'activities', {
-            method: 'POST',
-            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-            body: JSON.stringify(rowData)
-        })
-        .then(response =>{ 
-            return response.json();
-        })
-        .then(data =>{
-            console.log('POST', data)
-            // TODO? run GET to obtain the resource instead of modifying in memory object?
-            // eg if server updates the date/time.
-            rowData['id'] = data;
-            dispatchActivities({
-                type: 'added',
-                rowData: rowData
-            });
-        })
-        .catch(error => {
-            console.log(error);
-        });
-    }
-
-    function deleteRow(id) {
-        fetch(`${base_api}activities/${id}`, {
-            method: 'DELETE',
-        })
-        .then(() => {
-            // On successful deletion from DB, update state
-            console.log('DELETE successful');
-            dispatchActivities({
-                type: DELETED,
-                id: id
-            });
-        })
-        .catch(error=> {
-            console.log(error);
-        });
-    }   
-    
-    function editRow(rowData) {
-        const id = rowData.id;
-        fetch(`${base_api}activities/${id}`, {
-            method: 'PUT',
-            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-            body: JSON.stringify(rowData)
-        })
-        .then(() => {
-            console.log('PUT successful');
-            dispatchActivities({
-                type: EDITED,
-                rowData: rowData
-            });
-        })
-        .catch(error => {
-            console.log(error);
-        });
-    }
-
-    function changeSelection(newId) {
-        setCurrId(newId);
-    }
-
-    React.useEffect(() =>{
-        dispatchActivities({
-            type: LOADING
-        });
-        fetch(base_api + 'activities')
-        .then(response =>{ return response.json()})
-        .then(data => {
-            console.log('fetch');
-            dispatchActivities({
-                type: LOADED,
-                payload: data
-            })
-        })
-        .catch(error => 
-            {
-                dispatchActivities({
-                    type: ERROR_LOADING
-                });
-                console.log(error);
-            })
-    }, []) // empty array = no state/props dependencies, so only runs once on mount
-
-
-
-    console.log(activities);
+export default function App() {
     return (
-        <div className="main">
-            {
-                activities.isLoading && <div>Loading data...</div>
-            }
-            <NavBar></NavBar>
-            {
-                !activities.isError ?
-                <>
-                    <div className="table-container">
-                        <EditSection onAddRow={addRow} onEditRow={editRow} rows={activities.data} currId={currId} changeSelection={changeSelection}></EditSection>
-                        <DataTable columns={columns} rows={activities.data} onDeleteRow={deleteRow} changeSelection={changeSelection}></DataTable>
-                    </div>
-                    <Metrics data={activities.data}></Metrics>
-                </>
-                :
-                <div> Error Loading </div>
-            }
-        </div>
+        <BrowserRouter>
+            <NavBar routes={routes}/>
+            <Content />
+        </BrowserRouter>
     );
 }
 
-export default App;
+
+// Keep in mind - this kind of definition only makes sense if all routes defined are in the NavBar.
+
+// There may be many pages not accessible from the navbar. Then there may be an argument for just defining everything manually...
+
+function Content() {
+    return (
+        <Routes>
+            {
+                routes.map((route, index) => {
+                    return (
+                        <Route key={index} path={route.path} element={route.component()}></Route>
+                    );
+                })
+            }
+        </Routes>
+    );
+}
+
+
+function Home() {
+    return (<h2>Home Page</h2>);
+}

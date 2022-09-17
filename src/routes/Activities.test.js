@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import {getStartEndOfWk} from './DateUtils';
+import {getStartEndOfWk} from '../DateUtils';
 
 // todo refactor test suites
 test('date works correctly', () => {

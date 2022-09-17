@@ -1,28 +1,54 @@
 import * as React from 'react';
-import './NavBar.css';
+import styled from 'styled-components';
+import {
+    NavLink
+} from "react-router-dom";
 
-export default function NavBar({}) {
+const NavUl = styled.ul`
+    display: flex;
+    a {
+        text-decoration: none;
+    }
+    li {
+        color: red;
+        margin: 0 0.8rem;
+        font-size: 1.3rem;
+        position: relative;
+        list-style: none;
+    }
+    
+    .underline {
+        text-decoration: underline;
+    }
+`;
+
+
+export default function NavBar({routes}) {
+
+    const activeClassName = "underline";
     return (
-        <div className="nav-bar">
-            <NavButton text="Prev"></NavButton>
-            <DateSelector></DateSelector>
-            <NavButton text="Next"></NavButton>
-        </div>
-    );
+        <>
+            <div>
+                <nav>
+                    <NavUl>
+                        {
+                            routes.map((route, index) => {
+                                return (
+                                    <NavLink end key={index} to={route.path} className={({isActive}) => isActive ? activeClassName : undefined}>
+                                        <li>
+                                            {route.name}
+                                        </li>
+                                    </NavLink>
+                                )
+                            })
+                        }
+                    </NavUl>
+                </nav>
+            </div>
+
+        </>
+    )
 }
 
 
-function NavButton({onClick, text}) {
-    return (
-        <button onClick={onClick}>{text}</button>
-    );
-}
 
-function DateSelector({}) {
-    return (
-        <div>
-            <label htmlFor="main-date">Week including:</label>
-            <input type="date" id="main-date" name="main-date"></input>
-        </div>
-    );
-}

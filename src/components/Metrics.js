@@ -5,7 +5,7 @@ export default function Metrics({data}) {
     return (
         <div>
             <MetricSection name="Activities" value={data != null ? data.length : 0}></MetricSection>
-            <MetricSection name="Miles" value={data != null ? data.map(x => x.miles).reduce((prev, curr) => prev + curr) : 0}></MetricSection>
+            <MetricSection name="Miles" value={data != null ? data.map(x => x.miles).reduce((prev, curr) => prev + curr, 0) : 0}></MetricSection>
         </div>
     )
 }
