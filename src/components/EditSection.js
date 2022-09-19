@@ -10,7 +10,7 @@ export default function EditSection({ onAddRow, onEditRow, rows, currId, changeS
         miles: 0,
         time: 0,
         notes: '',
-    }
+    };
     const [formData, setFormData] = React.useState(defaultFormData);
     const [isEditing, setIsEditing] = React.useState(false);
     const [isFormError, setIsFormError] = React.useState(false);
@@ -54,7 +54,7 @@ export default function EditSection({ onAddRow, onEditRow, rows, currId, changeS
         }
     }
 
-    function handleCancel(){
+    function handleCancel() {
         toggleEditingMode();
         setFormData(defaultFormData);
         changeSelection(null);

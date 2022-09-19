@@ -25,31 +25,35 @@ function getActivities(request, response) {
     
     let startDate = request.query.startDate;
     let endDate = request.query.endDate;
+    console.log(request.query, startDate, endDate);
 
+    // clean up...
+    let SQL = 'SELECT * FROM activities';
+    let values = undefined;
 
-    
-    let SQL = 'SELECT * FROM activities ';
-    if (startDate != null && endDate != null) {
-        order
+    if (startDate != undefined && endDate != undefined) {
+        SQL += ' WHERE date >= $1 AND date <= $2';
+        values = [startDate, endDate];
     }
-    else if (startDate == null) {
-
+    else if (startDate != undefined) {
+        SQL += ' WHERE date >= $1';
+        values = [startDate];
     }
-    else if (endDate == null) {
-
+    else if (endDate != undefined) {
+        SQL += ' WHERE date <= $2'
+        values = [endDate];
     }
 
     SQL += ' ORDER BY id asc';
+    console.log(SQL, values);
 
-
-
-    pool.query(SQL, (error, results) => {
+    pool.query(SQL, values, (error, results) => {
         if (error) {
             console.log(error);
             return response.sendStatus(400);
         }
         else {
-            response
+            return response
                 .status(200) // Send the status code
                 .json(results.rows); // Send JSON as body
         }

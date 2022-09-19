@@ -9,16 +9,18 @@ import * as React from 'react';
 
 // TODO - on server code error, it currently crashes. change to return an error code w/ msg
 
-let x = getStartEndOfWk("8/9/2022");
 
 const base_api = 'http://localhost:5000/';
+const ERROR_LOADING = 'ERROR_LOADING';
+const LOADING = 'LOADING';
+const LOADED = 'LOADED';   
+const DELETED = 'DELETED';
+const EDITED = 'EDITED';
+const ADDED = 'ADDED';
 
-const ERROR_LOADING = 1;
-const LOADING = 2;
-const LOADED = 3;   
-const DELETED = 4;
-const EDITED = 5;
-function dataReducer(state, action) {
+const today = new Date().toLocaleDateString('en-CA');
+
+function activitiesReducer(state, action) {
     console.log(state, action);
     switch (action.type) {
         case ERROR_LOADING: {
@@ -32,7 +34,7 @@ function dataReducer(state, action) {
             return { ...state, data: action.payload, isError: false, isLoading: false };
         }
         // Append a row
-        case 'added': { // TODO fix
+        case ADDED: { // TODO fix rowData being added directly to data's state, vs just pinging the API again
             return {
                 ...state,
                 data: [...state.data, action.rowData]
@@ -56,11 +58,16 @@ function dataReducer(state, action) {
             };
         }
         default: {
-            throw Error('Unknown action: ' + action.type)
+            throw Error(`Unknown action: ${action.type}`);
         }
     }
 }
 
+const timeGran = {
+    WEEK: 'weekly',
+    MONTH: 'month',
+    YEAR: 'year'
+};
 
 function Activities() {
     let columns = [
@@ -77,13 +84,34 @@ function Activities() {
         isLoading: false,
         isError: false
     };
-    const [activities, dispatchActivities] = React.useReducer(dataReducer, initialState);
+    const [activities, dispatchActivities] = React.useReducer(activitiesReducer, initialState);
     const [currId, setCurrId] = React.useState(null);
 
     const [dateRange, setDateRange] = React.useState({
+        startDate: undefined,
+        endDate: undefined
     });
 
+    const [dateSelection, setDateSelection] = React.useState({
+        timeGran: timeGran.WEEK,
+        date: today
+    });
 
+    React.useEffect(() => {
+        let startDate, endDate;
+        switch (dateSelection.timeGran) {
+            case timeGran.WEEK:
+                [startDate, endDate] = getStartEndOfWk(dateSelection.date);
+                break;
+            default:
+                break;
+        }
+        console.log(startDate, endDate);
+        setDateRange({
+            startDate: startDate,
+            endDate: endDate
+        });
+    }, [dateSelection]);
 
     function addRow(rowData) {
         fetch(base_api + 'activities', {
@@ -100,7 +128,7 @@ function Activities() {
             // eg if server updates the date/time.
             rowData['id'] = data;
             dispatchActivities({
-                type: 'added',
+                type: ADDED,
                 rowData: rowData
             });
         })
@@ -149,11 +177,20 @@ function Activities() {
         setCurrId(newId);
     }
 
-    React.useEffect(() =>{
+    // Main data retrieval effect
+    // TODO: this should not run until after the default date is set. Currently it runs once on mount with empty params,
+    // then runs again after the dateRange is set
+    React.useEffect(() => {
         dispatchActivities({
             type: LOADING
         });
-        fetch(base_api + 'activities')
+        const searchParams = new URLSearchParams();
+        if (dateRange.startDate != undefined)
+            searchParams.append('startDate', dateRange.startDate);
+        if (dateRange.endDate != undefined)
+            searchParams.append('endDate', dateRange.endDate);
+        console.log('GET to ' + base_api + 'activities?' + searchParams)
+        fetch(base_api + 'activities?' + searchParams)
         .then(response =>{ return response.json()})
         .then(data => {
             console.log('fetch');
@@ -162,27 +199,23 @@ function Activities() {
                 payload: data
             })
         })
-        .catch(error => 
-            {
-                dispatchActivities({
-                    type: ERROR_LOADING
-                });
-                console.log(error);
-            })
-    }, []) // empty array = no state/props dependencies, so only runs once on mount
+        .catch(error => {
+            dispatchActivities({
+                type: ERROR_LOADING
+            });
+            console.log(error);
+        });
+    }, [dateRange]) // empty array = no state/props dependencies, so only runs once on mount
 
-
-
-    console.log(activities);
     return (
         <div className="main">
             {
                 activities.isLoading && <div>Loading data...</div>
             }
-            <Toolbar></Toolbar>
             {
                 !activities.isError ?
                 <>
+                    <Toolbar dateSelection={dateSelection} setDate={setDateSelection}></Toolbar>
                     <div className="table-container">
                         <EditSection onAddRow={addRow} onEditRow={editRow} rows={activities.data} currId={currId} changeSelection={changeSelection}></EditSection>
                         <DataTable columns={columns} rows={activities.data} onDeleteRow={deleteRow} changeSelection={changeSelection}></DataTable>
