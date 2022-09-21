@@ -27,7 +27,7 @@ function getActivities(request, response) {
     let endDate = request.query.endDate;
     console.log(request.query, startDate, endDate);
 
-    // clean up...
+    // TODO: clean this up...
     let SQL = 'SELECT * FROM activities';
     let values = undefined;
 

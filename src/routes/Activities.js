@@ -3,7 +3,7 @@ import DataTable from '../components/DataTable.js';
 import EditSection from '../components/EditSection.js';
 import Toolbar from '../components/Toolbar.js';
 import Metrics from '../components/Metrics.js';
-import { getStartEndOfWk } from '../DateUtils.js';
+import { getStartEndOfWk, getStartEndOfMth } from '../DateUtils.js';
 
 import * as React from 'react';
 
@@ -11,6 +11,8 @@ import * as React from 'react';
 
 
 const base_api = 'http://localhost:5000/';
+
+// TODO: put these in an object or smth
 const ERROR_LOADING = 'ERROR_LOADING';
 const LOADING = 'LOADING';
 const LOADED = 'LOADED';   
@@ -63,11 +65,28 @@ function activitiesReducer(state, action) {
     }
 }
 
-const timeGran = {
+export const timeGran = {
     WEEK: 'weekly',
     MONTH: 'month',
     YEAR: 'year'
 };
+
+export const timeGranOptions = [
+    {
+        value: timeGran.WEEK,
+        label: 'Week'
+    },
+    { 
+        value: timeGran.MONTH, 
+        label: 'Month'
+    },
+    // {
+    //     value: timeGran.YEAR,
+    //     label: 'Year'
+    // }
+];
+export const defaultMonth = new Date().getMonth();
+export const defaultYear = new Date().getFullYear();
 
 function Activities() {
     let columns = [
@@ -94,7 +113,9 @@ function Activities() {
 
     const [dateSelection, setDateSelection] = React.useState({
         timeGran: timeGran.WEEK,
-        date: today
+        date: today,
+        month: defaultMonth,
+        year: defaultYear
     });
 
     React.useEffect(() => {
@@ -103,6 +124,8 @@ function Activities() {
             case timeGran.WEEK:
                 [startDate, endDate] = getStartEndOfWk(dateSelection.date);
                 break;
+            case timeGran.MONTH:
+                [startDate, endDate] = getStartEndOfMth(dateSelection.month, dateSelection.year);
             default:
                 break;
         }
@@ -185,9 +208,9 @@ function Activities() {
             type: LOADING
         });
         const searchParams = new URLSearchParams();
-        if (dateRange.startDate != undefined)
+        if (dateRange.startDate !== undefined)
             searchParams.append('startDate', dateRange.startDate);
-        if (dateRange.endDate != undefined)
+        if (dateRange.endDate !== undefined)
             searchParams.append('endDate', dateRange.endDate);
         console.log('GET to ' + base_api + 'activities?' + searchParams)
         fetch(base_api + 'activities?' + searchParams)
