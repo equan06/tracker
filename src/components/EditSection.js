@@ -5,7 +5,7 @@ import './EditSection.css';
 export default function EditSection({ onAddRow, onEditRow, rows, currId, changeSelection }) {
     console.log('EditSection')
     const defaultFormData = {
-        name: '',
+        name: 'Run',
         date: new Date().toLocaleDateString('en-ca'),
         miles: 0,
         time: 0,
@@ -68,10 +68,6 @@ export default function EditSection({ onAddRow, onEditRow, rows, currId, changeS
         setFormData(rowData);
         setIsEditing(currId !== null);
     }, [currId]);
-
-    React.useEffect(() =>{
-        console.log(formData);
-    }, [formData])
 
     return (
         <>

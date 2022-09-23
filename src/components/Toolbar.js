@@ -1,42 +1,41 @@
 import * as React from 'react';
 import './Toolbar.css';
 import '../DateUtils';
-import { addWeeksToDate } from '../DateUtils';
+import { addWeeksToDate, getStartEndOfMth, getStartEndOfWk } from '../DateUtils';
 import addWeeks  from 'date-fns/addWeeks';
 import addMonths from 'date-fns/addMonths';
-import add from 'date-fns/add';
 
 import { timeGran, timeGranOptions, defaultMonth, defaultYear } from '../routes/Activities';
 
-export default function Toolbar({dateSelection, setDate}) {
+export default function Toolbar({dateSelection, dispatchDate}) {
     function prevDate() {
-        modifyDate(false, dateSelection, setDate);
+        modifyDate(false, dateSelection, dispatchDate);
     }
 
     function nextDate() {
-        modifyDate(true, dateSelection, setDate);
+        modifyDate(true, dateSelection, dispatchDate);
     }
 
-
+    console.log("Toolbar");
     return (
         <div className="toolbar">
             <NavButton text="Prev" onClick={prevDate}></NavButton>
-            <DateSelector dateSelection={dateSelection} setDate={setDate}></DateSelector>
+            <DateSelector dateSelection={dateSelection} dispatchDate={dispatchDate}></DateSelector>
             <NavButton text="Next" onClick={nextDate}></NavButton>
         </div>
     );
 }
 
 // TODO: make prev/next work with months/years
-function modifyDate(isForward, dateSelection, setDate) {
+function modifyDate(isForward, dateSelection, dispatchDate) {
     if (dateSelection.date == undefined) return;
 
     // Because this is parsing yyyy/MM/dd, it parses using RFC2822, interpreting as local time
     let localDate = new Date(dateSelection.date.replace(/-/g, '\/'));  
     let newDate = addWeeks(localDate, isForward ? 1 : -1);
 
-    setDate({
-        ...dateSelection,
+    dispatchDate({
+        type: "week_changed",
         date: newDate.toLocaleDateString("en-ca")
     });
 }
@@ -46,8 +45,6 @@ function NavButton({onClick, text}) {
         <button onClick={onClick}>{text}</button>
     );
 }
-
-
 
 const yearOptions = [];
 const thisYear = new Date().getFullYear();
@@ -75,46 +72,61 @@ const monthOptions = [
     { value: 11, label: "Dec" }
 ];
 
-function DateSelector({dateSelection, setDate}) {
 
-    // uhh... refactor into useReducer????
+function DateSelector({dateSelection, dispatchDate}) {
+
+    // alright, this could definitely be consolidated
     function handleDateChange(e) {
         const target = e.target;
-        if (target.name === "timeGran")
-        {
-            if (target.value === timeGran.WEEK)
-            setDateLabelText("including");
-            else if (target.value === timeGran.MONTH) {
-                setDateLabelText("of");
-            }
-        }
-        
-        const isNumber = target.name === "month" || target.name === "year";
-        console.log(target.name, target.value);
-        setDate({
-            ...dateSelection,
-            [target.name]: isNumber ? parseFloat(target.value) : target.value
+        dispatchDate({ type: "week_changed", date: target.value });
+    }
+
+    function handleYearChange(e) {
+        const target = e.target;
+        dispatchDate({ type: "year_changed", year: parseFloat(target.value) });
+    }
+
+    // TODO: why is the value not already numeric? For year, it is.
+    function handleMonthChange(e) {
+        const target = e.target;
+        dispatchDate({ type: "month_changed", month: parseFloat(target.value) });
+    }
+    function handleTimeGranChange(e) {
+        const target = e.target;
+        dispatchDate({
+            type: "timeGran_changed", 
+            timeGran: target.value
         });
     }
 
+    React.useEffect(() => {
+        console.log("dateSelection useEffect")
+        if (dateSelection.timeGran === timeGran.WEEK){
+            setDateLabelText("including");
+        }
+        else if (dateSelection.timeGran === timeGran.MONTH)
+        {
+            setDateLabelText("of");
+        }
+    }, [dateSelection]);
 
-    const [dateLabelText, setDateLabelText] = React.useState('including')
-    console.log(dateSelection.timeGran)
+    const [dateLabelText, setDateLabelText] = React.useState('including');
+    console.log(dateSelection);
     return (
         <div>
-            <Selector name={"timeGran"} onChange={handleDateChange} options={timeGranOptions}></Selector>
+            <Selector name={"timeGran"} onChange={handleTimeGranChange} options={timeGranOptions}></Selector>
             <label htmlFor="date">{dateLabelText}:</label>
             {
                 dateSelection.timeGran === timeGran.WEEK ?
                 <input type="date" id="date" name="date" value={dateSelection.date} onChange={handleDateChange}></input> :
                 <>
                     <Selector name={"month"} 
-                        onChange={handleDateChange}
+                        onChange={handleMonthChange}
                         options={monthOptions}
                         value={dateSelection.month}
                         defaultValue={defaultMonth}></Selector>
                     <Selector name={"year"} 
-                        onChange={handleDateChange} 
+                        onChange={handleYearChange} 
                         options={yearOptions} 
                         value={dateSelection.year} 
                         defaultValue={defaultYear}></Selector>

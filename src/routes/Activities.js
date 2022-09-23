@@ -65,6 +65,53 @@ function activitiesReducer(state, action) {
     }
 }
 
+// TODO: make reducer directory
+function dateReducer(state, action) {
+    let startDate, endDate;
+    switch (action.type) {
+        case "timeGran_changed": 
+            if (action.timeGran === timeGran.MONTH)
+                [startDate, endDate] = getStartEndOfMth(state.month, state.year);
+            else if (action.timeGran === timeGran.WEEK)
+                [startDate, endDate] = getStartEndOfWk(state.date);
+            return {
+                ...state,
+                timeGran: action.timeGran,
+                startDate: startDate,
+                endDate: endDate
+            };
+        case 'month_changed':
+            [startDate, endDate] = getStartEndOfMth(action.month, state.year);
+            return {
+                ...state,
+                month: action.month,
+                startDate: startDate,
+                endDate: endDate
+            };
+        case "year_changed":
+            [startDate, endDate] = getStartEndOfMth(state.month, action.year);
+            return {
+                ...state,
+                year: action.year,
+                startDate: startDate,
+                endDate: endDate
+            };
+        case 'week_changed':
+            [startDate, endDate] = getStartEndOfWk(action.date);
+            return {
+                ...state,
+                date: action.date,
+                startDate: startDate,
+                endDate: endDate
+            };
+        default: {
+            throw Error(`Unknown action: ${action.type}`);
+        }
+    }
+}
+
+
+
 export const timeGran = {
     WEEK: 'weekly',
     MONTH: 'month',
@@ -97,7 +144,7 @@ function Activities() {
         {name: 'Notes', field: 'notes'}
     ];
 
-    console.log('table render')
+    console.log('Activities');
     let initialState = {
         data: [],
         isLoading: false,
@@ -106,17 +153,13 @@ function Activities() {
     const [activities, dispatchActivities] = React.useReducer(activitiesReducer, initialState);
     const [currId, setCurrId] = React.useState(null);
 
-    const [dateRange, setDateRange] = React.useState({
-        startDate: undefined,
-        endDate: undefined
-    });
-
-    const [dateSelection, setDateSelection] = React.useState({
+    let initialDate = {
         timeGran: timeGran.WEEK,
         date: today,
         month: defaultMonth,
-        year: defaultYear
-    });
+        year: defaultYear,
+    };
+    const [dateSelection, dispatchDates] = React.useReducer(dateReducer, initialDate);
 
     React.useEffect(() => {
         let startDate, endDate;
@@ -130,9 +173,30 @@ function Activities() {
                 break;
         }
         console.log(startDate, endDate);
-        setDateRange({
-            startDate: startDate,
-            endDate: endDate
+
+        dispatchActivities({
+            type: LOADING
+        });
+        const searchParams = new URLSearchParams();
+        if (startDate !== undefined)
+            searchParams.append('startDate', startDate);
+        if (endDate !== undefined)
+            searchParams.append('endDate', endDate);
+        console.log('GET to ' + base_api + 'activities?' + searchParams)
+        fetch(base_api + 'activities?' + searchParams)
+        .then(response =>{ return response.json()})
+        .then(data => {
+            console.log('fetch');
+            dispatchActivities({
+                type: LOADED,
+                payload: data
+            })
+        })
+        .catch(error => {
+            dispatchActivities({
+                type: ERROR_LOADING
+            });
+            console.log(error);
         });
     }, [dateSelection]);
 
@@ -200,35 +264,12 @@ function Activities() {
         setCurrId(newId);
     }
 
-    // Main data retrieval effect
-    // TODO: this should not run until after the default date is set. Currently it runs once on mount with empty params,
-    // then runs again after the dateRange is set
-    React.useEffect(() => {
-        dispatchActivities({
-            type: LOADING
-        });
-        const searchParams = new URLSearchParams();
-        if (dateRange.startDate !== undefined)
-            searchParams.append('startDate', dateRange.startDate);
-        if (dateRange.endDate !== undefined)
-            searchParams.append('endDate', dateRange.endDate);
-        console.log('GET to ' + base_api + 'activities?' + searchParams)
-        fetch(base_api + 'activities?' + searchParams)
-        .then(response =>{ return response.json()})
-        .then(data => {
-            console.log('fetch');
-            dispatchActivities({
-                type: LOADED,
-                payload: data
-            })
-        })
-        .catch(error => {
-            dispatchActivities({
-                type: ERROR_LOADING
-            });
-            console.log(error);
-        });
-    }, [dateRange]) // empty array = no state/props dependencies, so only runs once on mount
+    // // Main data retrieval effect
+    // // TODO: this should not run until after the default date is set. Currently it runs once on mount with empty params,
+    // // then runs again after the dateRange is set
+    // React.useEffect(() => {
+
+    // }, ) // empty array = no state/props dependencies, so only runs once on mount
 
     return (
         <div className="main">
@@ -238,7 +279,7 @@ function Activities() {
             {
                 !activities.isError ?
                 <>
-                    <Toolbar dateSelection={dateSelection} setDate={setDateSelection}></Toolbar>
+                    <Toolbar dateSelection={dateSelection} dispatchDate={dispatchDates}></Toolbar>
                     <div className="table-container">
                         <EditSection onAddRow={addRow} onEditRow={editRow} rows={activities.data} currId={currId} changeSelection={changeSelection}></EditSection>
                         <DataTable columns={columns} rows={activities.data} onDeleteRow={deleteRow} changeSelection={changeSelection}></DataTable>
