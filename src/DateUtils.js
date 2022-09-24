@@ -1,4 +1,4 @@
-function mod(n, m) {
+export function mod(n, m) {
     return ((n % m) + m) % m;
 }
 

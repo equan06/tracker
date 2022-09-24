@@ -1,6 +1,6 @@
 import * as React from 'react';
 import './Toolbar.css';
-import '../DateUtils';
+import { mod } from '../DateUtils';
 import { addWeeksToDate, getStartEndOfMth, getStartEndOfWk } from '../DateUtils';
 import addWeeks  from 'date-fns/addWeeks';
 import addMonths from 'date-fns/addMonths';
@@ -11,6 +11,7 @@ export default function Toolbar({dateSelection, dispatchDate}) {
     function prevDate() {
         modifyDate(false, dateSelection, dispatchDate);
     }
+
 
     function nextDate() {
         modifyDate(true, dateSelection, dispatchDate);
@@ -30,14 +31,33 @@ export default function Toolbar({dateSelection, dispatchDate}) {
 function modifyDate(isForward, dateSelection, dispatchDate) {
     if (dateSelection.date == undefined) return;
 
-    // Because this is parsing yyyy/MM/dd, it parses using RFC2822, interpreting as local time
-    let localDate = new Date(dateSelection.date.replace(/-/g, '\/'));  
-    let newDate = addWeeks(localDate, isForward ? 1 : -1);
-
-    dispatchDate({
-        type: "week_changed",
-        date: newDate.toLocaleDateString("en-ca")
-    });
+    if (dateSelection.timeGran === timeGran.WEEK) {
+        // Because this is parsing yyyy/MM/dd, it parses using RFC2822, interpreting as local time
+        let localDate = new Date(dateSelection.date.replace(/-/g, '\/'));  
+        let newDate = addWeeks(localDate, isForward ? 1 : -1);
+        dispatchDate({
+            type: "week_changed",
+            date: newDate.toLocaleDateString("en-ca")
+        });
+    }
+    else if (dateSelection.timeGran === timeGran.MONTH) {
+        let month = parseFloat(dateSelection.month);
+        let year = dateSelection.year;
+        if (month === 0 && !isForward) {
+            year -= 1;
+        }
+        else if (month === 11 && isForward) {
+            year += 1;
+        }
+        if (month !== -1) {
+            month = mod((month + (isForward ? 1 : -1)), 12);
+        }
+        dispatchDate({
+            type: "monthYear_changed",
+            month: month,
+            year: year
+        });
+    }
 }
 
 function NavButton({onClick, text}) {
@@ -137,9 +157,9 @@ function DateSelector({dateSelection, dispatchDate}) {
 }
 
 
-function Selector({name, onChange, options, defaultValue}) {
+function Selector({name, onChange, options, value, defaultValue}) {
     return (
-        <select name={name} onChange={onChange} defaultValue={defaultValue}>
+        <select name={name} onChange={onChange} value={value} defaultValue={defaultValue}>
             <optgroup>
                 {
                     options.map((option) => {

@@ -65,7 +65,6 @@ function activitiesReducer(state, action) {
     }
 }
 
-// TODO: make reducer directory
 function dateReducer(state, action) {
     let startDate, endDate;
     switch (action.type) {
@@ -80,7 +79,17 @@ function dateReducer(state, action) {
                 startDate: startDate,
                 endDate: endDate
             };
-        case 'month_changed':
+        case "monthYear_changed": 
+            [startDate, endDate] = getStartEndOfMth(action.month, action.year);
+            console.log(startDate, endDate);
+            return {
+                ...state,
+                month: action.month,
+                year: action.year,
+                startDate: startDate,
+                endDate: endDate
+            };
+        case "month_changed":
             [startDate, endDate] = getStartEndOfMth(action.month, state.year);
             return {
                 ...state,
@@ -96,7 +105,7 @@ function dateReducer(state, action) {
                 startDate: startDate,
                 endDate: endDate
             };
-        case 'week_changed':
+        case "week_changed":
             [startDate, endDate] = getStartEndOfWk(action.date);
             return {
                 ...state,
