@@ -17,11 +17,18 @@ app.get('/', (request, response) => {
     response.json({info: 'Node, Express, Postgres API'})
 });
 
+
+// Activities API
 app.get('/activities', db.getActivities);
 app.get('/activities/:id', db.getActivityById);
 app.post('/activities', db.createActivity);
 app.delete('/activities/:id', db.deleteActivityById);
 app.put('/activities/:id', db.updateActivityById)
+
+
+// Authentication API
+
+
 
 app.listen(port, () => {
     console.log(`App running on port ${port}.`);

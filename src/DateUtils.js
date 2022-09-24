@@ -1,15 +1,9 @@
+const locale = "en-ca";
+
 export function mod(n, m) {
     return ((n % m) + m) % m;
 }
 
-// TODO: need to find a date library, as currently we don't store times in UTC and right now JS dates are a headache
-
-const locale = "en-ca";
-/**
- * Get start/end of week, given date in mm-DD-yyyy
- * @param {*} dateStr 
- * @returns 
- */
 export function getStartEndOfWk(dateStr) {
     // TODO: replace datestr - with / for local time parsing
     let date = new Date(dateStr); // assume yyyy-MM-dd format (or most other date formats that are interpreted correctly)
@@ -19,7 +13,6 @@ export function getStartEndOfWk(dateStr) {
     let endDate = new Date(date.setDate(start + 6)).toLocaleDateString(locale);
     return [startDate, endDate];
 }   
-
 
 export function getStartEndOfMth(month, year) {
     let startDate, endDate;
@@ -35,11 +28,6 @@ export function getStartEndOfMth(month, year) {
     return [startDate, endDate];
 }
 
-export function getStartEndOfYr(dateStr) {
-
-}
-
-// Currently this does not work (can be off by 1 day due to timezone)
 export function addWeeksToDate(date, numberOfWeeks) {
     date.setDate(date.getDate() + numberOfWeeks * 7);
     return date;
