@@ -1,4 +1,3 @@
-const { isCompositeComponent } = require("react-dom/test-utils");
 const pg = require("./pool");
 const pool = pg.pool;
 
@@ -12,6 +11,7 @@ function authUserEmail(request, response) {
         }
         else {
             console.log(results);
+            // TODO: bcrypt
             if (results.rows.count > 0 && results.rows[0].password === password) {
                 return response.sendStatus(200);
             }
