@@ -8,9 +8,7 @@ import { getStartEndOfWk, getStartEndOfMth } from '../DateUtils.js';
 import * as React from 'react';
 
 // TODO - on server code error, it currently crashes. change to return an error code w/ msg
-
-
-const base_api = 'http://localhost:5000/';
+import { BASEAPI } from '../App';
 
 // TODO: put these in an object or smth
 const ERROR_LOADING = 'ERROR_LOADING';
@@ -191,8 +189,8 @@ function Activities() {
             searchParams.append('startDate', startDate);
         if (endDate !== undefined)
             searchParams.append('endDate', endDate);
-        console.log('GET to ' + base_api + 'activities?' + searchParams)
-        fetch(base_api + 'activities?' + searchParams)
+        console.log('GET to ' + BASEAPI + 'activities?' + searchParams)
+        fetch(BASEAPI + 'activities?' + searchParams)
         .then(response =>{ return response.json()})
         .then(data => {
             console.log('fetch');
@@ -210,7 +208,8 @@ function Activities() {
     }, [dateSelection]);
 
     function addRow(rowData) {
-        fetch(base_api + 'activities', {
+
+        fetch(BASEAPI + 'activities', {
             method: 'POST',
             headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
             body: JSON.stringify(rowData)
@@ -234,7 +233,7 @@ function Activities() {
     }
 
     function deleteRow(id) {
-        fetch(`${base_api}activities/${id}`, {
+        fetch(`${BASEAPI}activities/${id}`, {
             method: 'DELETE',
         })
         .then(() => {
@@ -252,7 +251,7 @@ function Activities() {
     
     function editRow(rowData) {
         const id = rowData.id;
-        fetch(`${base_api}activities/${id}`, {
+        fetch(`${BASEAPI}activities/${id}`, {
             method: 'PUT',
             headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
             body: JSON.stringify(rowData)

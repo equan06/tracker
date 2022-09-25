@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
+import { BASEAPI } from '../App';
 export default function LoginForm({}) {
     const defaultForm = {
         "email": "",
@@ -17,14 +18,34 @@ export default function LoginForm({}) {
         });
     }
 
-    function onLogin() {
+    function loginUser(e) {
+        e.preventDefault();
         // validate form
-
+        if (loginForm.email === undefined || loginForm.password === undefined)
+        {
+            console.log("missing username or password");
+            return false;
+        }
+        console.log(loginForm);
         // if valid, authenticate
-
-        // if authenticated, redirect
-        navigate("/activities");
+        fetch(BASEAPI + "auth", {
+            method: "POST",
+            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+            body: JSON.stringify(loginForm)
+        })
+        .then(() => {
+            // TODO: rework all api requests using axios. fetch error codes are not rejected, only network fail
+            // axios promises are rejected for non-200 codes (Same as ajax?)
+            // Authentication success
+            console.log("auth success");
+            navigate("/activities");
+        })
+        .catch(error => {
+            console.log("auth fail");
+            console.log(error);
+        });
     }
+
     return (
         <div>
             <h2>Log In</h2>
@@ -48,7 +69,7 @@ export default function LoginForm({}) {
                     value={loginForm.password}
                     handleChange={handleFormChange}>
                 </InputWithLabel>
-                <button id="submit-button" onClick={onLogin}>Log In</button>
+                <button id="submit-button" onClick={loginUser}>Log In</button>
             </form>
 
         </div>

@@ -11,6 +11,8 @@ import LoginForm from './routes/Login';
 import NavBar from './components/NavBar';
 import styled from 'styled-components';
 
+export const BASEAPI = 'http://localhost:5000/';
+
 const routes = [
     { name: 'Home', path: '/', component: () => <Home /> },
     { name: 'Activities', path: '/activities', component: () => <Activities /> },
