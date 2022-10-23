@@ -1,8 +1,12 @@
 import * as React from 'react';
 import styled from 'styled-components';
+import DropdownMenu from "./DropdownMenu";
+
 import {
-    NavLink
+    NavLink, useNavigate
 } from "react-router-dom";
+
+import AuthContext from "../contexts/AuthContext";
 
 const NavUl = styled.ul`
     display: flex;
@@ -32,7 +36,9 @@ const NavHeader = styled.div`
 `;
 
 export default function NavBar({routes}) {
+    const { authState, setAuthState } = React.useContext(AuthContext);
     const activeClassName = "underline";
+    const navigate = useNavigate();
     return (
         <NavHeader>
             <div>
@@ -53,17 +59,40 @@ export default function NavBar({routes}) {
                     }
                 </NavUl>
             </nav>
-            <NavUl>
-                <NavLink end to={"/profiles"} className={({isActive}) => isActive ? activeClassName : undefined}>
-                    <li>Profile</li>
-                </NavLink>
-                <NavLink to={"/login"}>
-                    <button>Log In</button>
-                </NavLink>
-                <NavLink to={"/login"}>
-                    <button>Sign Up</button>
-                </NavLink>
-            </NavUl>
+                {
+                    authState.isAuth ?  
+                        // TODO: extract into a separate profile specific component, style buttons
+                        // TODO: use NavLink instead of UL, and create a separate NavDropdown component
+                        <DropdownMenu 
+                            trigger={<button>Profile</button>}
+                            menu={[
+                                <button onClick={() => {
+                                    navigate("/profiles");
+                                }}>My Profile</button>,
+                                <button onClick={() =>{ 
+                                    setAuthState({...authState, isAuth: false});
+                                    navigate("/");
+                                }}>Log Out</button>
+                            ]}
+                        >
+
+                        </DropdownMenu>
+
+                        // <NavUl>
+                        //     <NavLink end to={"/profile"} className={({isActive}) => isActive ? activeClassName : undefined}>
+                        //         <DropdownMenu trigger={<button>Profile</button>}></DropdownMenu>
+                        //     </NavLink>
+                        // </NavUl>
+                        :
+                        <NavUl>
+                            <NavLink to={"/login"}>
+                                <button onClick={() =>{console.log("login")}}>Log In</button>
+                            </NavLink>
+                            <NavLink to={"/login"}>
+                                <button>Sign Up</button>
+                            </NavLink>
+                        </NavUl>
+                }
         </NavHeader>
     )
 }

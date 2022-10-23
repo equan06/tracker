@@ -3,19 +3,20 @@ import {
     BrowserRouter,
     Routes,
     Route,
-    Link,
+    Navigate
 } from "react-router-dom";
 
 import Activities from './routes/Activities';
 import LoginForm from './routes/Login';
 import NavBar from './components/NavBar';
 import styled from 'styled-components';
+import AuthContext, {AuthContextProvider} from "./contexts/AuthContext";
 
 export const BASEAPI = 'http://localhost:5000/';
 
 const routes = [
-    { name: 'Home', path: '/', component: () => <Home /> },
-    { name: 'Activities', path: '/activities', component: () => <Activities /> },
+    { name: 'Home', path: '/' },
+    { name: 'Activities', path: '/activities' },
 ];
 
 const Main = styled.main`
@@ -26,8 +27,10 @@ const Main = styled.main`
 export default function App() {
     return (
         <BrowserRouter>
-            <NavBar routes={routes}/>
-            <Content />
+            <AuthContextProvider>
+                <NavBar routes={routes}/>
+                <Content />
+            </AuthContextProvider>
         </BrowserRouter>
     );
 }
@@ -41,14 +44,9 @@ function Content() {
     return (
         <Main>
             <Routes>
-                {
-                    routes.map((route, index) => {
-                        return (
-                            <Route key={index} path={route.path} element={route.component()}></Route>
-                        );
-                    })
-                }
-                <Route path={"/login"} element={<LoginForm />}></Route>
+                <Route path="/" element={<Home/>}></Route>
+                <Route path="/activities" element={<PrivateRoute><Activities/></PrivateRoute>}/>
+                <Route path="/login" element={<LoginForm />}></Route>
             </Routes>
         </Main>
     );
@@ -57,4 +55,9 @@ function Content() {
 
 function Home() {
     return (<h2>Home Page</h2>);
+}
+
+function PrivateRoute({children}) {
+    const {authState} = React.useContext(AuthContext);
+    return authState.isAuth ? <>{children}</> : <Navigate replace={true} to="/login"/>
 }

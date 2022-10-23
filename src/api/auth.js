@@ -12,8 +12,10 @@ function authUserEmail(request, response) {
         else {
             console.log(results);
             // TODO: bcrypt
-            if (results.rows.count > 0 && results.rows[0].password === password) {
-                return response.sendStatus(200);
+            if (results.rows.length > 0 && results.rows[0].password === password) {
+                // return any information about the user
+                // return response.status(200).json({ID: results.rows[0].ID, email: results.rows[0].email});
+                return response.status(200).json({ID: results.rows[0].ID, email: results.rows[0].email });
             }
             else {
                 return response.sendStatus(401);
