@@ -4,8 +4,10 @@ import EditSection from '../components/EditSection.js';
 import Toolbar from '../components/Toolbar.js';
 import Metrics from '../components/Metrics.js';
 import { getStartEndOfWk, getStartEndOfMth } from '../DateUtils.js';
-
 import * as React from 'react';
+import axios from 'axios';
+
+
 
 // TODO - on server code error, it currently crashes. change to return an error code w/ msg
 import { BASEAPI } from '../App';
@@ -20,6 +22,7 @@ const ADDED = 'ADDED';
 
 const today = new Date().toLocaleDateString('en-CA');
 
+// TODO: remove
 function activitiesReducer(state, action) {
     console.log(state, action);
     switch (action.type) {
@@ -190,10 +193,12 @@ function Activities() {
         if (endDate !== undefined)
             searchParams.append('endDate', endDate);
         console.log('GET to ' + BASEAPI + 'activities?' + searchParams)
-        fetch(BASEAPI + 'activities?' + searchParams)
-        .then(response =>{ return response.json()})
+        axios.get(`${BASEAPI}activities?${searchParams}`, { withCredentials: true })
+        // fetch(BASEAPI + 'activities?' + searchParams)
+        .then(response => response.data)
         .then(data => {
             console.log('fetch');
+            console.log(data);
             dispatchActivities({
                 type: LOADED,
                 payload: data

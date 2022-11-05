@@ -34,18 +34,15 @@ export default function LoginForm({}) {
         fetch(BASEAPI + "auth", {
             method: "POST",
             headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+            credentials: 'include',
             body: JSON.stringify(loginForm)
         })
-        .then(response => { 
-            return response.json();
-        })
-        .then((data) => {
+        .then(() => {
             // TODO: rework all api requests using axios. fetch error codes are not rejected, only network fail
             // axios promises are rejected for non-200 codes (Same as ajax?)
             // Authentication success
             console.log("auth success");
-            console.log(data);
-            setAuthState({ isAuth: true, ID: data.ID, email: data.email });
+            setAuthState({ isAuth: true });
             navigate("/activities");
         })
         .catch(error => {

@@ -3,6 +3,15 @@ const pool = pg.pool;
 
 //note: req.params for route parameters, req.query for query params
 
+function checkAuth(request) {
+    console.log(request);
+    let sid = request.cookies["sid"];
+    console.log(sid);
+    if (sid == null) {
+        return false;
+    }
+    return true;
+}
 
 /**
  * -GET return all activities
@@ -11,6 +20,7 @@ const pool = pg.pool;
  */
 function getActivities(request, response) {
     console.log('getActivities');
+    if (!checkAuth(request)) return response.sendStatus(401);
     
     let startDate = request.query.startDate;
     let endDate = request.query.endDate;

@@ -13,6 +13,8 @@ import styled from 'styled-components';
 import AuthContext, {AuthContextProvider} from "./contexts/AuthContext";
 
 export const BASEAPI = 'http://localhost:5000/';
+export const CLIENT = 'http://localhost:3000/';
+
 
 const routes = [
     { name: 'Home', path: '/' },

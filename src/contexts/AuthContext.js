@@ -1,12 +1,11 @@
 import * as React from "react";
 
 
-const AuthContext = React.createContext({ isAuth: false, userID: -1 });
+const AuthContext = React.createContext({ isAuth: false });
 export default AuthContext;
 
 const defaultAuthState = {
     isAuth: false,
-    ID: -1
 }
 
 const AUTH_STATE = "authState";
