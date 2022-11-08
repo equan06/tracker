@@ -3,14 +3,21 @@ const pool = pg.pool;
 
 //note: req.params for route parameters, req.query for query params
 
-function checkAuth(request) {
-    console.log(request);
-    let sid = request.cookies["sid"];
-    console.log(sid);
-    if (sid == null) {
+async function checkAuth(request) {
+    try {
+        console.log(request);
+        let session_id = request.cookies["sid"];
+        console.log(session_id);
+        if (session_id === null)
+            return false;
+    
+        let results = await pool.query("SELECT * FROM sessions WHERE id = $1 AND expire_date < $2", [session_id, new Date().toISOString()]);
+        return results.rowCount === 1;
+    }
+    catch (e) {
+        console.error(e.stack);
         return false;
     }
-    return true;
 }
 
 /**
@@ -18,9 +25,10 @@ function checkAuth(request) {
  * @param {*} request 
  * @param {*} response 
  */
-function getActivities(request, response) {
+async function getActivities(request, response) {
     console.log('getActivities');
-    if (!checkAuth(request)) return response.sendStatus(401);
+    let isAuth = await checkAuth(request);
+    if (!isAuth) return response.sendStatus(401);
     
     let startDate = request.query.startDate;
     let endDate = request.query.endDate;
