@@ -5,7 +5,6 @@ const pool = pg.pool;
 
 async function checkAuth(request) {
     try {
-        console.log(request);
         let session_id = request.cookies["sid"];
         console.log(session_id);
         if (session_id === null)

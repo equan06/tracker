@@ -194,7 +194,6 @@ function Activities() {
             searchParams.append('endDate', endDate);
         console.log('GET to ' + BASEAPI + 'activities?' + searchParams)
         axios.get(`${BASEAPI}activities?${searchParams}`, { withCredentials: true })
-        // fetch(BASEAPI + 'activities?' + searchParams)
         .then(response => response.data)
         .then(data => {
             console.log('fetch');

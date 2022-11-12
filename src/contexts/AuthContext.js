@@ -1,27 +1,35 @@
 import * as React from "react";
+import Cookies from "js-cookie";
 
-
-const AuthContext = React.createContext({ isAuth: false });
+const AuthContext = React.createContext(getAuthCookie());
 export default AuthContext;
 
-const defaultAuthState = {
-    isAuth: false,
-}
-
-const AUTH_STATE = "authState";
 export function AuthContextProvider({children}) {
-    const [authState, setAuthState] = React.useState(() => {
-        let state = localStorage.getItem(AUTH_STATE);
-        return state !== null ? JSON.parse(state) : defaultAuthState;
-    });
+    const [authState, setAuthState] = React.useState(getAuthCookie());
 
-    React.useEffect(() => {
-        localStorage.setItem(AUTH_STATE, JSON.stringify(authState));
-    }, [authState]);
+    const setAuthCookie = () => {
+        setAuthState(getAuthCookie());
+    }
+
+    const removeAuthCookie= () => {
+        Cookies.remove("sid");
+        setAuthState(getAuthCookie());
+    }
 
     return (
-        <AuthContext.Provider value={{authState, setAuthState}}>
+        <AuthContext.Provider value={{authState, setAuthCookie, removeAuthCookie}}>
             {children}
         </AuthContext.Provider>
     );
+}
+
+
+
+export function getAuthCookie() {
+    let session = Cookies.get("sid");
+    console.log(session);
+    if (session === undefined) {
+        return {};
+    }
+    return { session_id: session };
 }

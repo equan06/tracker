@@ -1,3 +1,4 @@
+import axios from "axios";
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
@@ -5,11 +6,13 @@ import { BASEAPI } from '../App';
 import AuthContext from "../contexts/AuthContext";
 
 export default function LoginForm({}) {
+
+    const { setAuthCookie } = React.useContext(AuthContext);
+
     const defaultForm = {
         "email": "",
         "password": ""
     };
-    const {authState, setAuthState} = React.useContext(AuthContext);
     const [loginForm, setLoginForm] = React.useState(defaultForm);
     const navigate = useNavigate();
 
@@ -31,18 +34,19 @@ export default function LoginForm({}) {
         }
         console.log(loginForm);
         // if valid, authenticate
-        fetch(BASEAPI + "auth", {
-            method: "POST",
-            headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify(loginForm)
-        })
+        axios.post(BASEAPI + "auth", 
+            loginForm,
+            {
+                headers: { 'Accept': 'application/json', 'Content-Type': 'application/json' },
+                withCredentials: true, // allow this request to read/store cookies
+            }
+        )
         .then(() => {
             // TODO: rework all api requests using axios. fetch error codes are not rejected, only network fail
             // axios promises are rejected for non-200 codes (Same as ajax?)
             // Authentication success
             console.log("auth success");
-            setAuthState({ isAuth: true });
+            setAuthCookie();
             navigate("/activities");
         })
         .catch(error => {

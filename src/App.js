@@ -6,6 +6,7 @@ import {
     Navigate
 } from "react-router-dom";
 
+import Profiles from "./routes/Profiles";
 import Activities from './routes/Activities';
 import LoginForm from './routes/Login';
 import NavBar from './components/NavBar';
@@ -48,6 +49,7 @@ function Content() {
             <Routes>
                 <Route path="/" element={<Home/>}></Route>
                 <Route path="/activities" element={<PrivateRoute><Activities/></PrivateRoute>}/>
+                <Route path="/profiles" element={<PrivateRoute><Profiles/></PrivateRoute>}/>
                 <Route path="/login" element={<LoginForm />}></Route>
             </Routes>
         </Main>
@@ -61,5 +63,7 @@ function Home() {
 
 function PrivateRoute({children}) {
     const {authState} = React.useContext(AuthContext);
-    return authState.isAuth ? <>{children}</> : <Navigate replace={true} to="/login"/>
+    // Check whether the session is still valid
+    console.log(authState);
+    return authState.session_id != null ? <>{children}</> : <Navigate replace={true} to="/login"/>
 }

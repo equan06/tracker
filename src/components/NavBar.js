@@ -36,7 +36,7 @@ const NavHeader = styled.div`
 `;
 
 export default function NavBar({routes}) {
-    const { authState, setAuthState } = React.useContext(AuthContext);
+    const { authState, removeAuthCookie } = React.useContext(AuthContext);
     const activeClassName = "underline";
     const navigate = useNavigate();
     return (
@@ -60,7 +60,7 @@ export default function NavBar({routes}) {
                 </NavUl>
             </nav>
                 {
-                    authState.isAuth ?  
+                    authState != null && authState.session_id != null ?  
                         // TODO: extract into a separate profile specific component, style buttons
                         // TODO: use NavLink instead of UL, and create a separate NavDropdown component
                         <DropdownMenu 
@@ -70,12 +70,11 @@ export default function NavBar({routes}) {
                                     navigate("/profiles");
                                 }}>My Profile</button>,
                                 <button onClick={() =>{ 
-                                    setAuthState({...authState, isAuth: false});
+                                    removeAuthCookie();
                                     navigate("/");
                                 }}>Log Out</button>
                             ]}
                         >
-
                         </DropdownMenu>
 
                         // <NavUl>
