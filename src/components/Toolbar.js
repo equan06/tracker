@@ -1,17 +1,14 @@
 import * as React from 'react';
 import './Toolbar.css';
 import { mod } from '../DateUtils';
-import { addWeeksToDate, getStartEndOfMth, getStartEndOfWk } from '../DateUtils';
 import addWeeks  from 'date-fns/addWeeks';
-import addMonths from 'date-fns/addMonths';
 
-import { timeGran, timeGranOptions, defaultMonth, defaultYear } from '../routes/Activities';
-
+import { timeGran, timeGranOptions, } from "../reducers/dateReducer";
+import {defaultMonth, defaultYear } from "../routes/Activities";
 export default function Toolbar({dateSelection, dispatchDate}) {
     function prevDate() {
         modifyDate(false, dateSelection, dispatchDate);
     }
-
 
     function nextDate() {
         modifyDate(true, dateSelection, dispatchDate);
