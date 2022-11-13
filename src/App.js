@@ -65,5 +65,5 @@ function PrivateRoute({children}) {
     const {authState} = React.useContext(AuthContext);
     // Check whether the session is still valid
     console.log(authState);
-    return authState.session_id != null ? <>{children}</> : <Navigate replace={true} to="/login"/>
+    return authState !== null ? <>{children}</> : <Navigate replace={true} to="/login"/>
 }

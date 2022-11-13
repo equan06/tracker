@@ -6,6 +6,7 @@ import Metrics from '../components/Metrics.js';
 import { getStartEndOfWk, getStartEndOfMth } from '../DateUtils.js';
 import * as React from 'react';
 import axios from 'axios';
+import AuthContext from '../contexts/AuthContext';
 
 
 
@@ -145,31 +146,31 @@ export const timeGranOptions = [
 export const defaultMonth = new Date().getMonth();
 export const defaultYear = new Date().getFullYear();
 
+const columns = [
+    {name: 'Name', field: 'name',},
+    {name: 'Date', field: 'date', dataType: 'date' }, 
+    {name: 'Miles', field: 'miles'},
+    {name: 'Time', field: 'time', dataType: 'seconds'}, 
+    {name: 'Notes', field: 'notes'}
+];
+const initialState = {
+    data: [],
+    isLoading: false,
+    isError: false
+};
+const initialDate = {
+    timeGran: timeGran.WEEK,
+    date: today,
+    month: defaultMonth,
+    year: defaultYear,
+};
 function Activities() {
-    let columns = [
-        {name: 'Name', field: 'name',},
-        {name: 'Date', field: 'date', dataType: 'date' }, 
-        {name: 'Miles', field: 'miles'},
-        {name: 'Time', field: 'time', dataType: 'seconds'}, 
-        {name: 'Notes', field: 'notes'}
-    ];
-
     console.log('Activities');
-    let initialState = {
-        data: [],
-        isLoading: false,
-        isError: false
-    };
     const [activities, dispatchActivities] = React.useReducer(activitiesReducer, initialState);
     const [currId, setCurrId] = React.useState(null);
-
-    let initialDate = {
-        timeGran: timeGran.WEEK,
-        date: today,
-        month: defaultMonth,
-        year: defaultYear,
-    };
     const [dateSelection, dispatchDates] = React.useReducer(dateReducer, initialDate);
+
+    const { axiosAuth } = React.useContext(AuthContext);
 
     React.useEffect(() => {
         let startDate, endDate;
@@ -192,23 +193,21 @@ function Activities() {
             searchParams.append('startDate', startDate);
         if (endDate !== undefined)
             searchParams.append('endDate', endDate);
+
         console.log('GET to ' + BASEAPI + 'activities?' + searchParams)
-        axios.get(`${BASEAPI}activities?${searchParams}`, { withCredentials: true })
-        .then(response => response.data)
-        .then(data => {
-            console.log('fetch');
-            console.log(data);
-            dispatchActivities({
-                type: LOADED,
-                payload: data
+        axiosAuth.get(`activities?${searchParams}`)
+            .then(response => response.data)
+            .then(data => {
+                dispatchActivities({
+                    type: LOADED,
+                    payload: data
+                })
             })
-        })
-        .catch(error => {
-            dispatchActivities({
-                type: ERROR_LOADING
+            .catch(error => {
+                dispatchActivities({
+                    type: ERROR_LOADING
+                });
             });
-            console.log(error);
-        });
     }, [dateSelection]);
 
     function addRow(rowData) {
