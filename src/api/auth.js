@@ -1,8 +1,8 @@
-const pg = require("./pool");
-const pool = pg.pool;
-const uuid = require("uuid");
-const expireHrs = 1; 
+import pool from "./pool";
+import { v4 } from "uuid";
+import bcrypt from "bcrypt";
 
+const expireHrs = 1; 
 
 async function authUser(request, response) {
     const { email, password } = request.body;
@@ -10,15 +10,17 @@ async function authUser(request, response) {
 
     try {
         let results = await pool.query("SELECT * FROM users WHERE email = $1", [email]);
-        if (results.rowCount > 0 && results.rows[0].password === password) {
-            let session_id = await createSession(client, results.rows[0].id);
-            console.log("authenticated", session_id);
-            response.cookie("sid", session_id, { httpOnly: false, maxAge: expireHrs * 60 * 60 * 1000 });
-            return response.sendStatus(200);
+        if (results.rowCount > 0) {
+            let isAuth = await bcrypt.compare(password, results[0].hash);
+            if (isAuth)
+            {
+                let session_id = await createSession(client, results.rows[0].id);
+                console.log("authenticated", session_id);
+                response.cookie("sid", session_id, { httpOnly: false, maxAge: expireHrs * 60 * 60 * 1000 });
+                return response.sendStatus(200);
+            }
         }
-        else {
-            return response.sendStatus(401); // Unauthorized
-        }
+        return response.sendStatus(401); // Bad authentication
     }
     catch (e) {
         console.error("Error in authUser", e.stack);
@@ -27,34 +29,12 @@ async function authUser(request, response) {
     finally {
         client.release();
     }
-
-    // pool.query("SELECT * FROM users WHERE email = $1", [email], async (error, results) => {
-    //     if (error) {
-    //         console.log(error);
-    //         return response.sendStatus(400);
-    //     }
-    //     else {
-    //         console.log(results);
-    //         // TODO: bcrypt
-    //         if (results.rows.length > 0 && results.rows[0].password === password) {
-    //             // return any information about the user
-    //             let session_id = await createSession(results.rows[0].id);
-    //             response.cookie("sid", session_id, { httpOnly: false, maxAge: expireHrs * 60 * 60 * 1000 });
-    //             // Create a session object                
-    //             return response.sendStatus(200);
-    //         }
-    //         else {
-    //             return response.sendStatus(401); // Unauthorized
-    //         }
-    //     }
-    // });
 }
 
 
 async function createSession(client, user_id) {
-    // This runs in a transaction, so we establish client instead of the connection pool
-    let session_id = uuid.v4();
-    // let client = await pool.connect();
+    // This runs in a transaction, client should be defined
+    let session_id = v4();
     try {
         await client.query("BEGIN");
         let clearSessions = "DELETE FROM sessions WHERE user_id = $1";
@@ -70,17 +50,13 @@ async function createSession(client, user_id) {
         await client.query("ROLLBACK");
         throw e;
     } 
-    finally {
-        // client.release();
-    }
 }
 
 Date.prototype.addHours = function(h) {
     this.setTime(this.getTime() + h*60*60*1000);
     return this;
 }
-  
 
-module.exports = {
+export default {
     authUser
 };

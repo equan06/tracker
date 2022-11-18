@@ -1,6 +1,4 @@
-const pg = require("./pool");
-const pool = pg.pool;
-
+import { pool } from "./pool";
 //note: req.params for route parameters, req.query for query params
 
 async function checkAuth(request) {
@@ -140,7 +138,7 @@ function updateActivityById(request, response) {
 }
 
 
-module.exports = {
+export default {
     getActivities,
     getActivityById,
     createActivity,

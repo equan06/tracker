@@ -1,4 +1,5 @@
-const pg = require('pg');
+import { Pool, types } from 'pg';
+// nice credentials
 const config = {
     user: 'sa',
     host: 'localhost',
@@ -6,14 +7,9 @@ const config = {
     password: 'password123',
     port: 5432 // default postgres port
 };
-const pool = new pg.Pool(config);
-const types = pg.types;
+const pool = new Pool(config);
 types.setTypeParser(1114, (stringValue)=> {
     return stringValue.substring(0, 10);
 });
 
-
-
-module.exports = {
-    pool
-};
+export default pool;
