@@ -1,17 +1,17 @@
-import express from "express";
+import express, { urlencoded } from "express";
 import cookieParser from "cookie-parser";
-import { json, urlencoded } from "body-parser";
-import { getActivities, getActivityById, createActivity, deleteActivityById, updateActivityById } from "./activities_api";
-import { authUser } from "./auth";
+import * as activities from "./activities_api.js";
+import * as auth from "./auth.js";
 import cors from "cors";
+import bodyParser from "body-parser";
 
 const port = 5000;
 const CLIENT = "http://localhost:3000";
 
 const app = express();
-app.use(json());
+app.use(bodyParser.json());
 app.use(
-    urlencoded({
+    bodyParser.urlencoded({
     extended: true,
   })
 );
@@ -28,15 +28,15 @@ app.get("/", (request, response) => {
 
 
 // Activities API
-app.get("/activities", getActivities);
-app.get("/activities/:id", getActivityById);
-app.post("/activities", createActivity);
-app.delete("/activities/:id", deleteActivityById);
-app.put("/activities/:id", updateActivityById)
+app.get("/activities", activities.getActivities);
+app.get("/activities/:id", activities.getActivityById);
+app.post("/activities", activities.createActivity);
+app.delete("/activities/:id", activities.deleteActivityById);
+app.put("/activities/:id", activities.updateActivityById)  
 
 
 // Authentication API
-app.post("/auth", authUser);
+app.post("/auth", auth.authUser);
 
 app.listen(port, () => {
     console.log(`App running on port ${port}.`);

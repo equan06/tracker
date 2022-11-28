@@ -1,4 +1,4 @@
-import pool from "./pool";
+import pool from "./pool.js";
 import { v4 } from "uuid";
 import bcrypt from "bcrypt";
 
@@ -57,6 +57,6 @@ Date.prototype.addHours = function(h) {
     return this;
 }
 
-export default {
+export {
     authUser
-};
+}

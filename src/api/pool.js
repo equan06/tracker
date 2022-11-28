@@ -1,4 +1,4 @@
-import { Pool, types } from 'pg';
+import pg from 'pg';
 // nice credentials
 const config = {
     user: 'sa',
@@ -7,8 +7,8 @@ const config = {
     password: 'password123',
     port: 5432 // default postgres port
 };
-const pool = new Pool(config);
-types.setTypeParser(1114, (stringValue)=> {
+const pool = new pg.Pool(config);
+pg.types.setTypeParser(1114, (stringValue)=> {
     return stringValue.substring(0, 10);
 });
 

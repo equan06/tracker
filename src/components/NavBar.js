@@ -1,12 +1,12 @@
 import * as React from 'react';
 import styled from 'styled-components';
-import DropdownMenu from "./DropdownMenu";
+import DropdownMenu from "./DropdownMenu.js";
 
 import {
     NavLink, useNavigate
 } from "react-router-dom";
 
-import AuthContext from "../contexts/AuthContext";
+import AuthContext from "../contexts/AuthContext.js";
 
 const NavUl = styled.ul`
     display: flex;

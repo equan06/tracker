@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import pool from "./pool";
+import pool from "./pool.js";
 
 export const saltRounds = 10;
 

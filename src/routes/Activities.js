@@ -5,13 +5,13 @@ import Toolbar from '../components/Toolbar.js';
 import Metrics from '../components/Metrics.js';
 import { getStartEndOfWk, getStartEndOfMth } from '../DateUtils.js';
 import * as React from 'react';
-import AuthContext from '../contexts/AuthContext';
-import {activitiesReducer, activitiesState} from "../reducers/activitiesReducer";
-import { timeGran, dateReducer } from '../reducers/dateReducer';
+import AuthContext from '../contexts/AuthContext.js';
+import {activitiesReducer, activitiesState} from "../reducers/activitiesReducer.js";
+import { timeGran, dateReducer } from '../reducers/dateReducer.js';
 
 
 // TODO - on server code error, it currently crashes. change to return an error code w/ msg
-import { BASEAPI } from '../App';
+import { BASEAPI } from '../App.js';
 
 
 export const defaultMonth = new Date().getMonth();

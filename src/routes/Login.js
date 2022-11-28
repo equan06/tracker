@@ -2,8 +2,8 @@ import axios from "axios";
 import * as React from 'react';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
-import { BASEAPI } from '../App';
-import AuthContext from "../contexts/AuthContext";
+import { BASEAPI } from '../App.js';
+import AuthContext from "../contexts/AuthContext.js";
 
 export default function LoginForm({}) {
 

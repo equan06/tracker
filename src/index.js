@@ -1,8 +1,8 @@
 import React from 'react';
 import {createRoot } from 'react-dom/client';
 import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import App from './App.js';
+import reportWebVitals from './reportWebVitals.js';
 
 // react 18 new way of initializing
 const container = document.getElementById('root');

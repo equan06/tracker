@@ -1,4 +1,4 @@
-import { pool } from "./pool";
+import pool from "./pool.js";
 //note: req.params for route parameters, req.query for query params
 
 async function checkAuth(request) {
@@ -138,7 +138,7 @@ function updateActivityById(request, response) {
 }
 
 
-export default {
+export {
     getActivities,
     getActivityById,
     createActivity,

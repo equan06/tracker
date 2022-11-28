@@ -49,6 +49,7 @@
     "type": "git",
     "url": "git+https://github.com/equan06/tracker.git"
   },
+  "type": "module",
   "keywords": [],
   "author": "",
   "license": "MIT",

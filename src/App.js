@@ -6,12 +6,12 @@ import {
     Navigate
 } from "react-router-dom";
 
-import Profiles from "./routes/Profiles";
-import Activities from './routes/Activities';
-import LoginForm from './routes/Login';
-import NavBar from './components/NavBar';
+import Profiles from "./routes/Profiles.js";
+import Activities from './routes/Activities.js';
+import LoginForm from './routes/Login.js';
+import NavBar from './components/NavBar.js';
 import styled from 'styled-components';
-import AuthContext, {AuthContextProvider} from "./contexts/AuthContext";
+import AuthContext, {AuthContextProvider} from "./contexts/AuthContext.js";
 
 export const BASEAPI = 'http://localhost:5000/';
 export const CLIENT = 'http://localhost:3000/';
